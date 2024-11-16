@@ -1,0 +1,20 @@
+# Terminal Environment Changes
+
+## Extension: vscode.git
+
+Enables the following features: git auth provider
+
+- `GIT_ASKPASS=/tmp/.mount_cursorBNXkTK/resources/app/extensions/git/dist/askpass.sh`
+- `VSCODE_GIT_ASKPASS_NODE=/tmp/.mount_cursorBNXkTK/cursor`
+- `VSCODE_GIT_ASKPASS_EXTRA_ARGS=`
+- `VSCODE_GIT_ASKPASS_MAIN=/tmp/.mount_cursorBNXkTK/resources/app/extensions/git/dist/askpass-main.js`
+- `VSCODE_GIT_IPC_HANDLE=/run/user/1000/vscode-git-a6afceeb12.sock`
+
+## Extension: ms-python.python
+
+Activated environment for `./.venv/bin/python`
+
+- `VIRTUAL_ENV=/home/dukhanin/agile_new/.venv`
+- `VIRTUAL_ENV_PROMPT=(.venv) `
+- `PS1=(.venv) ${env:PS1}`
+- `PATH=/home/dukhanin/.cursor/extensions/ms-python.python-2024.12.3-linux-x64/python_files/deactivate/bash:/home/dukhanin/agile_new/.venv/bin:${env:PATH}`

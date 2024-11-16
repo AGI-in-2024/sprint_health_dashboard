@@ -1,0 +1,580 @@
+2024-11-16 01:28:41,067 - models - INFO - Loading tasks from /home/dukhanin/agile_new/backend/data/data_for_spb_hakaton_entities1-Table 1.csv
+2024-11-16 01:28:41,182 - models - INFO - Loading sprints from /home/dukhanin/agile_new/backend/data/sprints-Table 1.csv
+2024-11-16 01:28:41,204 - models - INFO - 
+Verifying entity_ids parsing:
+2024-11-16 01:28:41,206 - models - INFO - Sprint Спринт 2024.3.1.NPP Shared Sprint: 464 tasks
+2024-11-16 01:28:41,206 - models - INFO - Sprint Спринт 2024.3.2.NPP Shared Sprint: 437 tasks
+2024-11-16 01:28:41,207 - models - INFO - Sprint Спринт 2024.3.3.NPP Shared Sprint: 501 tasks
+2024-11-16 01:28:41,207 - models - INFO - Sprint Спринт 2024.3.4.NPP Shared Sprint: 375 tasks
+2024-11-16 01:28:41,207 - models - INFO - Sprint Спринт 2024.3.5.NPP Shared Sprint: 540 tasks
+2024-11-16 01:28:41,208 - models - INFO - Sprint Спринт 2024.3.6.NPP Shared Sprint: 513 tasks
+2024-11-16 01:28:41,208 - models - INFO - Loading history from /home/dukhanin/agile_new/backend/data/history-Table 1.csv
+2024-11-16 01:28:42,307 - models - ERROR - Failed to load data: 'DataLoader' object has no attribute '_validate_loaded_data'
+2024-11-16 01:28:45,394 - models - INFO - Loading tasks from /home/dukhanin/agile_new/backend/data/data_for_spb_hakaton_entities1-Table 1.csv
+2024-11-16 01:28:45,463 - models - INFO - Loading sprints from /home/dukhanin/agile_new/backend/data/sprints-Table 1.csv
+2024-11-16 01:28:45,471 - models - INFO - 
+Verifying entity_ids parsing:
+2024-11-16 01:28:45,471 - models - INFO - Sprint Спринт 2024.3.1.NPP Shared Sprint: 464 tasks
+2024-11-16 01:28:45,472 - models - INFO - Sprint Спринт 2024.3.2.NPP Shared Sprint: 437 tasks
+2024-11-16 01:28:45,472 - models - INFO - Sprint Спринт 2024.3.3.NPP Shared Sprint: 501 tasks
+2024-11-16 01:28:45,472 - models - INFO - Sprint Спринт 2024.3.4.NPP Shared Sprint: 375 tasks
+2024-11-16 01:28:45,472 - models - INFO - Sprint Спринт 2024.3.5.NPP Shared Sprint: 540 tasks
+2024-11-16 01:28:45,472 - models - INFO - Sprint Спринт 2024.3.6.NPP Shared Sprint: 513 tasks
+2024-11-16 01:28:45,472 - models - INFO - Loading history from /home/dukhanin/agile_new/backend/data/history-Table 1.csv
+2024-11-16 01:28:46,384 - models - ERROR - Failed to load data: 'DataLoader' object has no attribute '_validate_loaded_data'
+2024-11-16 01:30:49,348 - models - INFO - Loading tasks from /home/dukhanin/agile_new/backend/data/data_for_spb_hakaton_entities1-Table 1.csv
+2024-11-16 01:30:49,456 - models - INFO - Loading sprints from /home/dukhanin/agile_new/backend/data/sprints-Table 1.csv
+2024-11-16 01:30:49,465 - models - INFO - 
+Verifying entity_ids parsing:
+2024-11-16 01:30:49,465 - models - INFO - Sprint Спринт 2024.3.1.NPP Shared Sprint: 464 tasks
+2024-11-16 01:30:49,465 - models - INFO - Sprint Спринт 2024.3.2.NPP Shared Sprint: 437 tasks
+2024-11-16 01:30:49,466 - models - INFO - Sprint Спринт 2024.3.3.NPP Shared Sprint: 501 tasks
+2024-11-16 01:30:49,466 - models - INFO - Sprint Спринт 2024.3.4.NPP Shared Sprint: 375 tasks
+2024-11-16 01:30:49,466 - models - INFO - Sprint Спринт 2024.3.5.NPP Shared Sprint: 540 tasks
+2024-11-16 01:30:49,466 - models - INFO - Sprint Спринт 2024.3.6.NPP Shared Sprint: 513 tasks
+2024-11-16 01:30:49,466 - models - INFO - Loading history from /home/dukhanin/agile_new/backend/data/history-Table 1.csv
+2024-11-16 01:30:51,597 - models - INFO - Data validation completed successfully
+2024-11-16 01:30:51,597 - models - INFO - Data loaded and validated successfully
+2024-11-16 01:30:51,597 - models - INFO - 
+Data Loading Information:
+2024-11-16 01:30:51,597 - models - INFO - 
+Tasks DataFrame:
+2024-11-16 01:30:51,597 - models - INFO - Shape: (2485, 21)
+2024-11-16 01:30:51,597 - models - INFO - Columns: ['entity_id', 'area', 'type', 'status', 'state', 'priority', 'ticket_number', 'name', 'create_date', 'created_by', 'update_date', 'updated_by', 'parent_ticket_id', 'assignee', 'owner', 'due_date', 'rank', 'estimation', 'spent', 'workgroup', 'resolution']
+2024-11-16 01:30:51,599 - models - INFO - 
+First row sample (first 5 columns):
+{'entity_id': np.int64(94297), 'area': 'Система.Таск-трекер', 'type': 'Дефект', 'status': 'Закрыто', 'state': 'Normal'}
+2024-11-16 01:30:51,599 - models - INFO - 
+Sprints DataFrame:
+2024-11-16 01:30:51,599 - models - INFO - Shape: (6, 5)
+2024-11-16 01:30:51,599 - models - INFO - Columns: ['sprint_name', 'sprint_status', 'sprint_start_date', 'sprint_end_date', 'entity_ids']
+2024-11-16 01:30:51,600 - models - INFO - 
+First row sample (first 4 columns):
+{'sprint_name': 'Спринт 2024.3.1.NPP Shared Sprint', 'sprint_status': 'Закрыт', 'sprint_start_date': Timestamp('2024-07-03 19:00:00'), 'sprint_end_date': Timestamp('2024-07-16 19:00:00')}
+2024-11-16 01:30:51,600 - models - INFO - 
+History DataFrame:
+2024-11-16 01:30:51,600 - models - INFO - Shape: (64179, 8)
+2024-11-16 01:30:51,600 - models - INFO - Columns: ['entity_id', 'history_property_name', 'history_date', 'history_version', 'history_change_type', 'history_change', 'Столбец1', np.float64(nan)]
+2024-11-16 01:30:51,601 - models - INFO - 
+First row sample (first 4 columns):
+{'entity_id': '94297', 'history_property_name': 'Время решения 3ЛП ФАКТ', 'history_date': Timestamp('2024-09-10 11:17:00'), 'history_version': '1'}
+2024-11-16 01:30:51,601 - models - INFO - 
+Unique entity_ids in Tasks DataFrame:
+2024-11-16 01:30:51,602 - models - INFO - Count: 2484
+2024-11-16 01:30:51,603 - models - INFO - Sample: <IntegerArray>
+[94297, 102481, 1805925, 1934905, 1943849]
+Length: 5, dtype: Int64
+2024-11-16 01:30:51,604 - models - INFO - 
+Sample of entity_ids in Sprints DataFrame:
+2024-11-16 01:30:51,604 - models - INFO - First sprint's entity_ids: [4433921, 4335618, 2867204, 4450312, 4327437]
+2024-11-16 01:30:56,482 - models - INFO - Loading tasks from /home/dukhanin/agile_new/backend/data/data_for_spb_hakaton_entities1-Table 1.csv
+2024-11-16 01:30:56,611 - models - INFO - Loading sprints from /home/dukhanin/agile_new/backend/data/sprints-Table 1.csv
+2024-11-16 01:30:56,626 - models - INFO - 
+Verifying entity_ids parsing:
+2024-11-16 01:30:56,627 - models - INFO - Sprint Спринт 2024.3.1.NPP Shared Sprint: 464 tasks
+2024-11-16 01:30:56,627 - models - INFO - Sprint Спринт 2024.3.2.NPP Shared Sprint: 437 tasks
+2024-11-16 01:30:56,628 - models - INFO - Sprint Спринт 2024.3.3.NPP Shared Sprint: 501 tasks
+2024-11-16 01:30:56,628 - models - INFO - Sprint Спринт 2024.3.4.NPP Shared Sprint: 375 tasks
+2024-11-16 01:30:56,628 - models - INFO - Sprint Спринт 2024.3.5.NPP Shared Sprint: 540 tasks
+2024-11-16 01:30:56,628 - models - INFO - Sprint Спринт 2024.3.6.NPP Shared Sprint: 513 tasks
+2024-11-16 01:30:56,628 - models - INFO - Loading history from /home/dukhanin/agile_new/backend/data/history-Table 1.csv
+2024-11-16 01:30:57,915 - models - INFO - Data validation completed successfully
+2024-11-16 01:30:57,915 - models - INFO - Data loaded and validated successfully
+2024-11-16 01:30:59,774 - models - INFO - Loading tasks from /home/dukhanin/agile_new/backend/data/data_for_spb_hakaton_entities1-Table 1.csv
+2024-11-16 01:30:59,858 - models - INFO - Loading sprints from /home/dukhanin/agile_new/backend/data/sprints-Table 1.csv
+2024-11-16 01:30:59,866 - models - INFO - 
+Verifying entity_ids parsing:
+2024-11-16 01:30:59,867 - models - INFO - Sprint Спринт 2024.3.1.NPP Shared Sprint: 464 tasks
+2024-11-16 01:30:59,867 - models - INFO - Sprint Спринт 2024.3.2.NPP Shared Sprint: 437 tasks
+2024-11-16 01:30:59,868 - models - INFO - Sprint Спринт 2024.3.3.NPP Shared Sprint: 501 tasks
+2024-11-16 01:30:59,868 - models - INFO - Sprint Спринт 2024.3.4.NPP Shared Sprint: 375 tasks
+2024-11-16 01:30:59,868 - models - INFO - Sprint Спринт 2024.3.5.NPP Shared Sprint: 540 tasks
+2024-11-16 01:30:59,868 - models - INFO - Sprint Спринт 2024.3.6.NPP Shared Sprint: 513 tasks
+2024-11-16 01:30:59,868 - models - INFO - Loading history from /home/dukhanin/agile_new/backend/data/history-Table 1.csv
+2024-11-16 01:31:00,996 - models - INFO - Data validation completed successfully
+2024-11-16 01:31:00,996 - models - INFO - Data loaded and validated successfully
+2024-11-16 01:31:00,996 - models - INFO - 
+Data Loading Information:
+2024-11-16 01:31:00,996 - models - INFO - 
+Tasks DataFrame:
+2024-11-16 01:31:00,996 - models - INFO - Shape: (2485, 21)
+2024-11-16 01:31:00,996 - models - INFO - Columns: ['entity_id', 'area', 'type', 'status', 'state', 'priority', 'ticket_number', 'name', 'create_date', 'created_by', 'update_date', 'updated_by', 'parent_ticket_id', 'assignee', 'owner', 'due_date', 'rank', 'estimation', 'spent', 'workgroup', 'resolution']
+2024-11-16 01:31:00,997 - models - INFO - 
+First row sample (first 5 columns):
+{'entity_id': np.int64(94297), 'area': 'Система.Таск-трекер', 'type': 'Дефект', 'status': 'Закрыто', 'state': 'Normal'}
+2024-11-16 01:31:00,997 - models - INFO - 
+Sprints DataFrame:
+2024-11-16 01:31:00,997 - models - INFO - Shape: (6, 5)
+2024-11-16 01:31:00,997 - models - INFO - Columns: ['sprint_name', 'sprint_status', 'sprint_start_date', 'sprint_end_date', 'entity_ids']
+2024-11-16 01:31:00,997 - models - INFO - 
+First row sample (first 4 columns):
+{'sprint_name': 'Спринт 2024.3.1.NPP Shared Sprint', 'sprint_status': 'Закрыт', 'sprint_start_date': Timestamp('2024-07-03 19:00:00'), 'sprint_end_date': Timestamp('2024-07-16 19:00:00')}
+2024-11-16 01:31:00,998 - models - INFO - 
+History DataFrame:
+2024-11-16 01:31:00,998 - models - INFO - Shape: (64179, 8)
+2024-11-16 01:31:00,998 - models - INFO - Columns: ['entity_id', 'history_property_name', 'history_date', 'history_version', 'history_change_type', 'history_change', 'Столбец1', np.float64(nan)]
+2024-11-16 01:31:00,998 - models - INFO - 
+First row sample (first 4 columns):
+{'entity_id': '94297', 'history_property_name': 'Время решения 3ЛП ФАКТ', 'history_date': Timestamp('2024-09-10 11:17:00'), 'history_version': '1'}
+2024-11-16 01:31:00,998 - models - INFO - 
+Unique entity_ids in Tasks DataFrame:
+2024-11-16 01:31:00,998 - models - INFO - Count: 2484
+2024-11-16 01:31:00,999 - models - INFO - Sample: <IntegerArray>
+[94297, 102481, 1805925, 1934905, 1943849]
+Length: 5, dtype: Int64
+2024-11-16 01:31:00,999 - models - INFO - 
+Sample of entity_ids in Sprints DataFrame:
+2024-11-16 01:31:01,000 - models - INFO - First sprint's entity_ids: [4433921, 4335618, 2867204, 4450312, 4327437]
+2024-11-16 01:33:54,768 - models - INFO - Loading tasks from /home/dukhanin/agile_new/backend/data/data_for_spb_hakaton_entities1-Table 1.csv
+2024-11-16 01:33:54,935 - models - INFO - Loading sprints from /home/dukhanin/agile_new/backend/data/sprints-Table 1.csv
+2024-11-16 01:33:54,946 - models - INFO - 
+Verifying entity_ids parsing:
+2024-11-16 01:33:54,946 - models - INFO - Sprint Спринт 2024.3.1.NPP Shared Sprint: 464 tasks
+2024-11-16 01:33:54,947 - models - INFO - Sprint Спринт 2024.3.2.NPP Shared Sprint: 437 tasks
+2024-11-16 01:33:54,947 - models - INFO - Sprint Спринт 2024.3.3.NPP Shared Sprint: 501 tasks
+2024-11-16 01:33:54,947 - models - INFO - Sprint Спринт 2024.3.4.NPP Shared Sprint: 375 tasks
+2024-11-16 01:33:54,947 - models - INFO - Sprint Спринт 2024.3.5.NPP Shared Sprint: 540 tasks
+2024-11-16 01:33:54,947 - models - INFO - Sprint Спринт 2024.3.6.NPP Shared Sprint: 513 tasks
+2024-11-16 01:33:54,948 - models - INFO - Loading history from /home/dukhanin/agile_new/backend/data/history-Table 1.csv
+2024-11-16 01:33:56,180 - models - INFO - Data validation completed successfully
+2024-11-16 01:33:56,181 - models - INFO - Data loaded and validated successfully
+2024-11-16 01:33:56,186 - __main__ - INFO - Starting server...
+2024-11-16 01:33:57,676 - models - INFO - Loading tasks from /home/dukhanin/agile_new/backend/data/data_for_spb_hakaton_entities1-Table 1.csv
+2024-11-16 01:33:57,779 - models - INFO - Loading sprints from /home/dukhanin/agile_new/backend/data/sprints-Table 1.csv
+2024-11-16 01:33:57,788 - models - INFO - 
+Verifying entity_ids parsing:
+2024-11-16 01:33:57,789 - models - INFO - Sprint Спринт 2024.3.1.NPP Shared Sprint: 464 tasks
+2024-11-16 01:33:57,789 - models - INFO - Sprint Спринт 2024.3.2.NPP Shared Sprint: 437 tasks
+2024-11-16 01:33:57,789 - models - INFO - Sprint Спринт 2024.3.3.NPP Shared Sprint: 501 tasks
+2024-11-16 01:33:57,789 - models - INFO - Sprint Спринт 2024.3.4.NPP Shared Sprint: 375 tasks
+2024-11-16 01:33:57,790 - models - INFO - Sprint Спринт 2024.3.5.NPP Shared Sprint: 540 tasks
+2024-11-16 01:33:57,790 - models - INFO - Sprint Спринт 2024.3.6.NPP Shared Sprint: 513 tasks
+2024-11-16 01:33:57,790 - models - INFO - Loading history from /home/dukhanin/agile_new/backend/data/history-Table 1.csv
+2024-11-16 01:33:59,382 - models - INFO - Data validation completed successfully
+2024-11-16 01:33:59,383 - models - INFO - Data loaded and validated successfully
+2024-11-16 01:33:59,383 - models - INFO - 
+Data Loading Information:
+2024-11-16 01:33:59,383 - models - INFO - 
+Tasks DataFrame:
+2024-11-16 01:33:59,383 - models - INFO - Shape: (2485, 21)
+2024-11-16 01:33:59,384 - models - INFO - Columns: ['entity_id', 'area', 'type', 'status', 'state', 'priority', 'ticket_number', 'name', 'create_date', 'created_by', 'update_date', 'updated_by', 'parent_ticket_id', 'assignee', 'owner', 'due_date', 'rank', 'estimation', 'spent', 'workgroup', 'resolution']
+2024-11-16 01:33:59,387 - models - INFO - 
+First row sample (first 5 columns):
+{'entity_id': np.int64(94297), 'area': 'Система.Таск-трекер', 'type': 'Дефект', 'status': 'Закрыто', 'state': 'Normal'}
+2024-11-16 01:33:59,388 - models - INFO - 
+Sprints DataFrame:
+2024-11-16 01:33:59,388 - models - INFO - Shape: (6, 5)
+2024-11-16 01:33:59,388 - models - INFO - Columns: ['sprint_name', 'sprint_status', 'sprint_start_date', 'sprint_end_date', 'entity_ids']
+2024-11-16 01:33:59,390 - models - INFO - 
+First row sample (first 4 columns):
+{'sprint_name': 'Спринт 2024.3.1.NPP Shared Sprint', 'sprint_status': 'Закрыт', 'sprint_start_date': Timestamp('2024-07-03 19:00:00'), 'sprint_end_date': Timestamp('2024-07-16 19:00:00')}
+2024-11-16 01:33:59,391 - models - INFO - 
+History DataFrame:
+2024-11-16 01:33:59,391 - models - INFO - Shape: (64179, 8)
+2024-11-16 01:33:59,391 - models - INFO - Columns: ['entity_id', 'history_property_name', 'history_date', 'history_version', 'history_change_type', 'history_change', 'Столбец1', np.float64(nan)]
+2024-11-16 01:33:59,394 - models - INFO - 
+First row sample (first 4 columns):
+{'entity_id': '94297', 'history_property_name': 'Время решения 3ЛП ФАКТ', 'history_date': Timestamp('2024-09-10 11:17:00'), 'history_version': '1'}
+2024-11-16 01:33:59,395 - models - INFO - 
+Unique entity_ids in Tasks DataFrame:
+2024-11-16 01:33:59,397 - models - INFO - Count: 2484
+2024-11-16 01:33:59,400 - models - INFO - Sample: <IntegerArray>
+[94297, 102481, 1805925, 1934905, 1943849]
+Length: 5, dtype: Int64
+2024-11-16 01:33:59,401 - models - INFO - 
+Sample of entity_ids in Sprints DataFrame:
+2024-11-16 01:33:59,402 - models - INFO - First sprint's entity_ids: [4433921, 4335618, 2867204, 4450312, 4327437]
+2024-11-16 01:33:59,509 - __main__ - ERROR - Error calculating metrics: name 'logger' is not defined
+2024-11-16 01:34:13,484 - __main__ - INFO - Shutting down gracefully...
+2024-11-16 01:35:23,976 - models - INFO - Loading tasks from /home/dukhanin/agile_new/backend/data/data_for_spb_hakaton_entities1-Table 1.csv
+2024-11-16 01:35:24,050 - models - INFO - Loading sprints from /home/dukhanin/agile_new/backend/data/sprints-Table 1.csv
+2024-11-16 01:35:24,058 - models - INFO - 
+Verifying entity_ids parsing:
+2024-11-16 01:35:24,058 - models - INFO - Sprint Спринт 2024.3.1.NPP Shared Sprint: 464 tasks
+2024-11-16 01:35:24,059 - models - INFO - Sprint Спринт 2024.3.2.NPP Shared Sprint: 437 tasks
+2024-11-16 01:35:24,059 - models - INFO - Sprint Спринт 2024.3.3.NPP Shared Sprint: 501 tasks
+2024-11-16 01:35:24,059 - models - INFO - Sprint Спринт 2024.3.4.NPP Shared Sprint: 375 tasks
+2024-11-16 01:35:24,059 - models - INFO - Sprint Спринт 2024.3.5.NPP Shared Sprint: 540 tasks
+2024-11-16 01:35:24,059 - models - INFO - Sprint Спринт 2024.3.6.NPP Shared Sprint: 513 tasks
+2024-11-16 01:35:24,059 - models - INFO - Loading history from /home/dukhanin/agile_new/backend/data/history-Table 1.csv
+2024-11-16 01:35:25,143 - models - INFO - Data validation completed successfully
+2024-11-16 01:35:25,143 - models - INFO - Data loaded and validated successfully
+2024-11-16 01:35:25,150 - __main__ - INFO - Starting server...
+2024-11-16 01:35:26,218 - models - INFO - Loading tasks from /home/dukhanin/agile_new/backend/data/data_for_spb_hakaton_entities1-Table 1.csv
+2024-11-16 01:35:26,294 - models - INFO - Loading sprints from /home/dukhanin/agile_new/backend/data/sprints-Table 1.csv
+2024-11-16 01:35:26,302 - models - INFO - 
+Verifying entity_ids parsing:
+2024-11-16 01:35:26,302 - models - INFO - Sprint Спринт 2024.3.1.NPP Shared Sprint: 464 tasks
+2024-11-16 01:35:26,302 - models - INFO - Sprint Спринт 2024.3.2.NPP Shared Sprint: 437 tasks
+2024-11-16 01:35:26,303 - models - INFO - Sprint Спринт 2024.3.3.NPP Shared Sprint: 501 tasks
+2024-11-16 01:35:26,303 - models - INFO - Sprint Спринт 2024.3.4.NPP Shared Sprint: 375 tasks
+2024-11-16 01:35:26,303 - models - INFO - Sprint Спринт 2024.3.5.NPP Shared Sprint: 540 tasks
+2024-11-16 01:35:26,303 - models - INFO - Sprint Спринт 2024.3.6.NPP Shared Sprint: 513 tasks
+2024-11-16 01:35:26,303 - models - INFO - Loading history from /home/dukhanin/agile_new/backend/data/history-Table 1.csv
+2024-11-16 01:35:27,342 - models - INFO - Data validation completed successfully
+2024-11-16 01:35:27,342 - models - INFO - Data loaded and validated successfully
+2024-11-16 01:35:27,342 - models - INFO - 
+Data Loading Information:
+2024-11-16 01:35:27,342 - models - INFO - 
+Tasks DataFrame:
+2024-11-16 01:35:27,343 - models - INFO - Shape: (2485, 21)
+2024-11-16 01:35:27,343 - models - INFO - Columns: ['entity_id', 'area', 'type', 'status', 'state', 'priority', 'ticket_number', 'name', 'create_date', 'created_by', 'update_date', 'updated_by', 'parent_ticket_id', 'assignee', 'owner', 'due_date', 'rank', 'estimation', 'spent', 'workgroup', 'resolution']
+2024-11-16 01:35:27,343 - models - INFO - 
+First row sample (first 5 columns):
+{'entity_id': np.int64(94297), 'area': 'Система.Таск-трекер', 'type': 'Дефект', 'status': 'Закрыто', 'state': 'Normal'}
+2024-11-16 01:35:27,344 - models - INFO - 
+Sprints DataFrame:
+2024-11-16 01:35:27,344 - models - INFO - Shape: (6, 5)
+2024-11-16 01:35:27,344 - models - INFO - Columns: ['sprint_name', 'sprint_status', 'sprint_start_date', 'sprint_end_date', 'entity_ids']
+2024-11-16 01:35:27,344 - models - INFO - 
+First row sample (first 4 columns):
+{'sprint_name': 'Спринт 2024.3.1.NPP Shared Sprint', 'sprint_status': 'Закрыт', 'sprint_start_date': Timestamp('2024-07-03 19:00:00'), 'sprint_end_date': Timestamp('2024-07-16 19:00:00')}
+2024-11-16 01:35:27,344 - models - INFO - 
+History DataFrame:
+2024-11-16 01:35:27,344 - models - INFO - Shape: (64179, 8)
+2024-11-16 01:35:27,344 - models - INFO - Columns: ['entity_id', 'history_property_name', 'history_date', 'history_version', 'history_change_type', 'history_change', 'Столбец1', np.float64(nan)]
+2024-11-16 01:35:27,345 - models - INFO - 
+First row sample (first 4 columns):
+{'entity_id': '94297', 'history_property_name': 'Время решения 3ЛП ФАКТ', 'history_date': Timestamp('2024-09-10 11:17:00'), 'history_version': '1'}
+2024-11-16 01:35:27,345 - models - INFO - 
+Unique entity_ids in Tasks DataFrame:
+2024-11-16 01:35:27,345 - models - INFO - Count: 2484
+2024-11-16 01:35:27,346 - models - INFO - Sample: <IntegerArray>
+[94297, 102481, 1805925, 1934905, 1943849]
+Length: 5, dtype: Int64
+2024-11-16 01:35:27,346 - models - INFO - 
+Sample of entity_ids in Sprints DataFrame:
+2024-11-16 01:35:27,346 - models - INFO - First sprint's entity_ids: [4433921, 4335618, 2867204, 4450312, 4327437]
+2024-11-16 01:35:27,417 - crud - ERROR - Error in calculate_metrics: name '_calculate_base_metrics' is not defined
+2024-11-16 01:35:27,418 - __main__ - ERROR - Error calculating metrics: name '_calculate_base_metrics' is not defined
+2024-11-16 01:35:59,466 - __main__ - INFO - Shutting down gracefully...
+2024-11-16 01:38:10,495 - models - INFO - Loading tasks from /home/dukhanin/agile_new/backend/data/data_for_spb_hakaton_entities1-Table 1.csv
+2024-11-16 01:38:10,654 - models - INFO - Loading sprints from /home/dukhanin/agile_new/backend/data/sprints-Table 1.csv
+2024-11-16 01:38:10,668 - models - INFO - 
+Verifying entity_ids parsing:
+2024-11-16 01:38:10,669 - models - INFO - Sprint Спринт 2024.3.1.NPP Shared Sprint: 464 tasks
+2024-11-16 01:38:10,670 - models - INFO - Sprint Спринт 2024.3.2.NPP Shared Sprint: 437 tasks
+2024-11-16 01:38:10,670 - models - INFO - Sprint Спринт 2024.3.3.NPP Shared Sprint: 501 tasks
+2024-11-16 01:38:10,671 - models - INFO - Sprint Спринт 2024.3.4.NPP Shared Sprint: 375 tasks
+2024-11-16 01:38:10,671 - models - INFO - Sprint Спринт 2024.3.5.NPP Shared Sprint: 540 tasks
+2024-11-16 01:38:10,671 - models - INFO - Sprint Спринт 2024.3.6.NPP Shared Sprint: 513 tasks
+2024-11-16 01:38:10,671 - models - INFO - Loading history from /home/dukhanin/agile_new/backend/data/history-Table 1.csv
+2024-11-16 01:38:12,341 - models - INFO - Data validation completed successfully
+2024-11-16 01:38:12,341 - models - INFO - Data loaded and validated successfully
+2024-11-16 01:38:12,349 - __main__ - INFO - Starting server...
+2024-11-16 01:38:16,106 - models - INFO - Loading tasks from /home/dukhanin/agile_new/backend/data/data_for_spb_hakaton_entities1-Table 1.csv
+2024-11-16 01:38:16,185 - models - INFO - Loading sprints from /home/dukhanin/agile_new/backend/data/sprints-Table 1.csv
+2024-11-16 01:38:16,195 - models - INFO - 
+Verifying entity_ids parsing:
+2024-11-16 01:38:16,196 - models - INFO - Sprint Спринт 2024.3.1.NPP Shared Sprint: 464 tasks
+2024-11-16 01:38:16,196 - models - INFO - Sprint Спринт 2024.3.2.NPP Shared Sprint: 437 tasks
+2024-11-16 01:38:16,196 - models - INFO - Sprint Спринт 2024.3.3.NPP Shared Sprint: 501 tasks
+2024-11-16 01:38:16,196 - models - INFO - Sprint Спринт 2024.3.4.NPP Shared Sprint: 375 tasks
+2024-11-16 01:38:16,197 - models - INFO - Sprint Спринт 2024.3.5.NPP Shared Sprint: 540 tasks
+2024-11-16 01:38:16,197 - models - INFO - Sprint Спринт 2024.3.6.NPP Shared Sprint: 513 tasks
+2024-11-16 01:38:16,197 - models - INFO - Loading history from /home/dukhanin/agile_new/backend/data/history-Table 1.csv
+2024-11-16 01:38:17,268 - models - INFO - Data validation completed successfully
+2024-11-16 01:38:17,268 - models - INFO - Data loaded and validated successfully
+2024-11-16 01:38:17,268 - models - INFO - 
+Data Loading Information:
+2024-11-16 01:38:17,268 - models - INFO - 
+Tasks DataFrame:
+2024-11-16 01:38:17,268 - models - INFO - Shape: (2485, 21)
+2024-11-16 01:38:17,268 - models - INFO - Columns: ['entity_id', 'area', 'type', 'status', 'state', 'priority', 'ticket_number', 'name', 'create_date', 'created_by', 'update_date', 'updated_by', 'parent_ticket_id', 'assignee', 'owner', 'due_date', 'rank', 'estimation', 'spent', 'workgroup', 'resolution']
+2024-11-16 01:38:17,269 - models - INFO - 
+First row sample (first 5 columns):
+{'entity_id': np.int64(94297), 'area': 'Система.Таск-трекер', 'type': 'Дефект', 'status': 'Закрыто', 'state': 'Normal'}
+2024-11-16 01:38:17,269 - models - INFO - 
+Sprints DataFrame:
+2024-11-16 01:38:17,269 - models - INFO - Shape: (6, 5)
+2024-11-16 01:38:17,269 - models - INFO - Columns: ['sprint_name', 'sprint_status', 'sprint_start_date', 'sprint_end_date', 'entity_ids']
+2024-11-16 01:38:17,270 - models - INFO - 
+First row sample (first 4 columns):
+{'sprint_name': 'Спринт 2024.3.1.NPP Shared Sprint', 'sprint_status': 'Закрыт', 'sprint_start_date': Timestamp('2024-07-03 19:00:00'), 'sprint_end_date': Timestamp('2024-07-16 19:00:00')}
+2024-11-16 01:38:17,270 - models - INFO - 
+History DataFrame:
+2024-11-16 01:38:17,270 - models - INFO - Shape: (64179, 8)
+2024-11-16 01:38:17,270 - models - INFO - Columns: ['entity_id', 'history_property_name', 'history_date', 'history_version', 'history_change_type', 'history_change', 'Столбец1', np.float64(nan)]
+2024-11-16 01:38:17,270 - models - INFO - 
+First row sample (first 4 columns):
+{'entity_id': '94297', 'history_property_name': 'Время решения 3ЛП ФАКТ', 'history_date': Timestamp('2024-09-10 11:17:00'), 'history_version': '1'}
+2024-11-16 01:38:17,270 - models - INFO - 
+Unique entity_ids in Tasks DataFrame:
+2024-11-16 01:38:17,271 - models - INFO - Count: 2484
+2024-11-16 01:38:17,271 - models - INFO - Sample: <IntegerArray>
+[94297, 102481, 1805925, 1934905, 1943849]
+Length: 5, dtype: Int64
+2024-11-16 01:38:17,272 - models - INFO - 
+Sample of entity_ids in Sprints DataFrame:
+2024-11-16 01:38:17,272 - models - INFO - First sprint's entity_ids: [4433921, 4335618, 2867204, 4450312, 4327437]
+2024-11-16 01:38:17,703 - crud - INFO - Metrics calculated successfully
+2024-11-16 01:41:34,150 - __main__ - INFO - Shutting down gracefully...
+2024-11-16 01:41:36,498 - models - INFO - Loading tasks from /home/dukhanin/agile_new/backend/data/data_for_spb_hakaton_entities1-Table 1.csv
+2024-11-16 01:41:36,575 - models - INFO - Loading sprints from /home/dukhanin/agile_new/backend/data/sprints-Table 1.csv
+2024-11-16 01:41:36,582 - models - INFO - 
+Verifying entity_ids parsing:
+2024-11-16 01:41:36,582 - models - INFO - Sprint Спринт 2024.3.1.NPP Shared Sprint: 464 tasks
+2024-11-16 01:41:36,582 - models - INFO - Sprint Спринт 2024.3.2.NPP Shared Sprint: 437 tasks
+2024-11-16 01:41:36,582 - models - INFO - Sprint Спринт 2024.3.3.NPP Shared Sprint: 501 tasks
+2024-11-16 01:41:36,583 - models - INFO - Sprint Спринт 2024.3.4.NPP Shared Sprint: 375 tasks
+2024-11-16 01:41:36,583 - models - INFO - Sprint Спринт 2024.3.5.NPP Shared Sprint: 540 tasks
+2024-11-16 01:41:36,583 - models - INFO - Sprint Спринт 2024.3.6.NPP Shared Sprint: 513 tasks
+2024-11-16 01:41:36,583 - models - INFO - Loading history from /home/dukhanin/agile_new/backend/data/history-Table 1.csv
+2024-11-16 01:41:38,736 - models - INFO - Data validation completed successfully
+2024-11-16 01:41:38,736 - models - INFO - Data loaded and validated successfully
+2024-11-16 01:41:38,741 - __main__ - INFO - Starting server...
+2024-11-16 01:41:40,790 - models - INFO - Loading tasks from /home/dukhanin/agile_new/backend/data/data_for_spb_hakaton_entities1-Table 1.csv
+2024-11-16 01:41:40,875 - models - INFO - Loading sprints from /home/dukhanin/agile_new/backend/data/sprints-Table 1.csv
+2024-11-16 01:41:40,888 - models - INFO - 
+Verifying entity_ids parsing:
+2024-11-16 01:41:40,889 - models - INFO - Sprint Спринт 2024.3.1.NPP Shared Sprint: 464 tasks
+2024-11-16 01:41:40,889 - models - INFO - Sprint Спринт 2024.3.2.NPP Shared Sprint: 437 tasks
+2024-11-16 01:41:40,890 - models - INFO - Sprint Спринт 2024.3.3.NPP Shared Sprint: 501 tasks
+2024-11-16 01:41:40,890 - models - INFO - Sprint Спринт 2024.3.4.NPP Shared Sprint: 375 tasks
+2024-11-16 01:41:40,890 - models - INFO - Sprint Спринт 2024.3.5.NPP Shared Sprint: 540 tasks
+2024-11-16 01:41:40,890 - models - INFO - Sprint Спринт 2024.3.6.NPP Shared Sprint: 513 tasks
+2024-11-16 01:41:40,890 - models - INFO - Loading history from /home/dukhanin/agile_new/backend/data/history-Table 1.csv
+2024-11-16 01:41:42,403 - models - INFO - Data validation completed successfully
+2024-11-16 01:41:42,403 - models - INFO - Data loaded and validated successfully
+2024-11-16 01:41:42,403 - models - INFO - 
+Data Loading Information:
+2024-11-16 01:41:42,403 - models - INFO - 
+Tasks DataFrame:
+2024-11-16 01:41:42,404 - models - INFO - Shape: (2485, 21)
+2024-11-16 01:41:42,404 - models - INFO - Columns: ['entity_id', 'area', 'type', 'status', 'state', 'priority', 'ticket_number', 'name', 'create_date', 'created_by', 'update_date', 'updated_by', 'parent_ticket_id', 'assignee', 'owner', 'due_date', 'rank', 'estimation', 'spent', 'workgroup', 'resolution']
+2024-11-16 01:41:42,408 - models - INFO - 
+First row sample (first 5 columns):
+{'entity_id': np.int64(94297), 'area': 'Система.Таск-трекер', 'type': 'Дефект', 'status': 'Закрыто', 'state': 'Normal'}
+2024-11-16 01:41:42,408 - models - INFO - 
+Sprints DataFrame:
+2024-11-16 01:41:42,409 - models - INFO - Shape: (6, 5)
+2024-11-16 01:41:42,409 - models - INFO - Columns: ['sprint_name', 'sprint_status', 'sprint_start_date', 'sprint_end_date', 'entity_ids']
+2024-11-16 01:41:42,412 - models - INFO - 
+First row sample (first 4 columns):
+{'sprint_name': 'Спринт 2024.3.1.NPP Shared Sprint', 'sprint_status': 'Закрыт', 'sprint_start_date': Timestamp('2024-07-03 19:00:00'), 'sprint_end_date': Timestamp('2024-07-16 19:00:00')}
+2024-11-16 01:41:42,413 - models - INFO - 
+History DataFrame:
+2024-11-16 01:41:42,413 - models - INFO - Shape: (64179, 8)
+2024-11-16 01:41:42,414 - models - INFO - Columns: ['entity_id', 'history_property_name', 'history_date', 'history_version', 'history_change_type', 'history_change', 'Столбец1', np.float64(nan)]
+2024-11-16 01:41:42,417 - models - INFO - 
+First row sample (first 4 columns):
+{'entity_id': '94297', 'history_property_name': 'Время решения 3ЛП ФАКТ', 'history_date': Timestamp('2024-09-10 11:17:00'), 'history_version': '1'}
+2024-11-16 01:41:42,417 - models - INFO - 
+Unique entity_ids in Tasks DataFrame:
+2024-11-16 01:41:42,419 - models - INFO - Count: 2484
+2024-11-16 01:41:42,423 - models - INFO - Sample: <IntegerArray>
+[94297, 102481, 1805925, 1934905, 1943849]
+Length: 5, dtype: Int64
+2024-11-16 01:41:42,423 - models - INFO - 
+Sample of entity_ids in Sprints DataFrame:
+2024-11-16 01:41:42,424 - models - INFO - First sprint's entity_ids: [4433921, 4335618, 2867204, 4450312, 4327437]
+2024-11-16 01:41:42,849 - crud - INFO - Metrics calculated successfully
+2024-11-16 13:12:17,526 - models - INFO - Loading tasks from /home/dukhanin/agile_new/backend/data/data_for_spb_hakaton_entities1-Table 1.csv
+2024-11-16 13:12:17,618 - models - INFO - Loading sprints from /home/dukhanin/agile_new/backend/data/sprints-Table 1.csv
+2024-11-16 13:12:17,628 - models - INFO - 
+Verifying entity_ids parsing:
+2024-11-16 13:12:17,629 - models - INFO - Sprint Спринт 2024.3.1.NPP Shared Sprint: 464 tasks
+2024-11-16 13:12:17,629 - models - INFO - Sprint Спринт 2024.3.2.NPP Shared Sprint: 437 tasks
+2024-11-16 13:12:17,629 - models - INFO - Sprint Спринт 2024.3.3.NPP Shared Sprint: 501 tasks
+2024-11-16 13:12:17,629 - models - INFO - Sprint Спринт 2024.3.4.NPP Shared Sprint: 375 tasks
+2024-11-16 13:12:17,629 - models - INFO - Sprint Спринт 2024.3.5.NPP Shared Sprint: 540 tasks
+2024-11-16 13:12:17,630 - models - INFO - Sprint Спринт 2024.3.6.NPP Shared Sprint: 513 tasks
+2024-11-16 13:12:17,630 - models - INFO - Loading history from /home/dukhanin/agile_new/backend/data/history-Table 1.csv
+2024-11-16 13:12:18,718 - models - INFO - Data validation completed successfully
+2024-11-16 13:12:18,718 - models - INFO - Data loaded and validated successfully
+2024-11-16 13:12:18,725 - __main__ - INFO - Starting server...
+2024-11-16 13:12:30,917 - models - INFO - Loading tasks from /home/dukhanin/agile_new/backend/data/data_for_spb_hakaton_entities1-Table 1.csv
+2024-11-16 13:12:30,992 - models - INFO - Loading sprints from /home/dukhanin/agile_new/backend/data/sprints-Table 1.csv
+2024-11-16 13:12:31,000 - models - INFO - 
+Verifying entity_ids parsing:
+2024-11-16 13:12:31,001 - models - INFO - Sprint Спринт 2024.3.1.NPP Shared Sprint: 464 tasks
+2024-11-16 13:12:31,001 - models - INFO - Sprint Спринт 2024.3.2.NPP Shared Sprint: 437 tasks
+2024-11-16 13:12:31,001 - models - INFO - Sprint Спринт 2024.3.3.NPP Shared Sprint: 501 tasks
+2024-11-16 13:12:31,001 - models - INFO - Sprint Спринт 2024.3.4.NPP Shared Sprint: 375 tasks
+2024-11-16 13:12:31,001 - models - INFO - Sprint Спринт 2024.3.5.NPP Shared Sprint: 540 tasks
+2024-11-16 13:12:31,002 - models - INFO - Sprint Спринт 2024.3.6.NPP Shared Sprint: 513 tasks
+2024-11-16 13:12:31,002 - models - INFO - Loading history from /home/dukhanin/agile_new/backend/data/history-Table 1.csv
+2024-11-16 13:12:32,169 - models - INFO - Data validation completed successfully
+2024-11-16 13:12:32,169 - models - INFO - Data loaded and validated successfully
+2024-11-16 13:12:32,169 - models - INFO - 
+Data Loading Information:
+2024-11-16 13:12:32,169 - models - INFO - 
+Tasks DataFrame:
+2024-11-16 13:12:32,169 - models - INFO - Shape: (2485, 21)
+2024-11-16 13:12:32,169 - models - INFO - Columns: ['entity_id', 'area', 'type', 'status', 'state', 'priority', 'ticket_number', 'name', 'create_date', 'created_by', 'update_date', 'updated_by', 'parent_ticket_id', 'assignee', 'owner', 'due_date', 'rank', 'estimation', 'spent', 'workgroup', 'resolution']
+2024-11-16 13:12:32,170 - models - INFO - 
+First row sample (first 5 columns):
+{'entity_id': np.int64(94297), 'area': 'Система.Таск-трекер', 'type': 'Дефект', 'status': 'Закрыто', 'state': 'Normal'}
+2024-11-16 13:12:32,171 - models - INFO - 
+Sprints DataFrame:
+2024-11-16 13:12:32,171 - models - INFO - Shape: (6, 5)
+2024-11-16 13:12:32,171 - models - INFO - Columns: ['sprint_name', 'sprint_status', 'sprint_start_date', 'sprint_end_date', 'entity_ids']
+2024-11-16 13:12:32,171 - models - INFO - 
+First row sample (first 4 columns):
+{'sprint_name': 'Спринт 2024.3.1.NPP Shared Sprint', 'sprint_status': 'Закрыт', 'sprint_start_date': Timestamp('2024-07-03 19:00:00'), 'sprint_end_date': Timestamp('2024-07-16 19:00:00')}
+2024-11-16 13:12:32,171 - models - INFO - 
+History DataFrame:
+2024-11-16 13:12:32,171 - models - INFO - Shape: (64179, 8)
+2024-11-16 13:12:32,171 - models - INFO - Columns: ['entity_id', 'history_property_name', 'history_date', 'history_version', 'history_change_type', 'history_change', 'Столбец1', np.float64(nan)]
+2024-11-16 13:12:32,172 - models - INFO - 
+First row sample (first 4 columns):
+{'entity_id': '94297', 'history_property_name': 'Время решения 3ЛП ФАКТ', 'history_date': Timestamp('2024-09-10 11:17:00'), 'history_version': '1'}
+2024-11-16 13:12:32,172 - models - INFO - 
+Unique entity_ids in Tasks DataFrame:
+2024-11-16 13:12:32,174 - models - INFO - Count: 2484
+2024-11-16 13:12:32,175 - models - INFO - Sample: <IntegerArray>
+[94297, 102481, 1805925, 1934905, 1943849]
+Length: 5, dtype: Int64
+2024-11-16 13:12:32,175 - models - INFO - 
+Sample of entity_ids in Sprints DataFrame:
+2024-11-16 13:12:32,176 - models - INFO - First sprint's entity_ids: [4433921, 4335618, 2867204, 4450312, 4327437]
+2024-11-16 13:12:32,690 - crud - INFO - Metrics calculated successfully
+2024-11-16 13:15:55,491 - __main__ - INFO - Shutting down gracefully...
+2024-11-16 13:15:58,293 - models - INFO - Loading tasks from /home/dukhanin/agile_new/backend/data/data_for_spb_hakaton_entities1-Table 1.csv
+2024-11-16 13:15:58,446 - models - INFO - Loading sprints from /home/dukhanin/agile_new/backend/data/sprints-Table 1.csv
+2024-11-16 13:15:58,453 - models - INFO - 
+Verifying entity_ids parsing:
+2024-11-16 13:15:58,454 - models - INFO - Sprint Спринт 2024.3.1.NPP Shared Sprint: 464 tasks
+2024-11-16 13:15:58,454 - models - INFO - Sprint Спринт 2024.3.2.NPP Shared Sprint: 437 tasks
+2024-11-16 13:15:58,454 - models - INFO - Sprint Спринт 2024.3.3.NPP Shared Sprint: 501 tasks
+2024-11-16 13:15:58,454 - models - INFO - Sprint Спринт 2024.3.4.NPP Shared Sprint: 375 tasks
+2024-11-16 13:15:58,454 - models - INFO - Sprint Спринт 2024.3.5.NPP Shared Sprint: 540 tasks
+2024-11-16 13:15:58,454 - models - INFO - Sprint Спринт 2024.3.6.NPP Shared Sprint: 513 tasks
+2024-11-16 13:15:58,454 - models - INFO - Loading history from /home/dukhanin/agile_new/backend/data/history-Table 1.csv
+2024-11-16 13:15:59,615 - models - INFO - Data validation completed successfully
+2024-11-16 13:15:59,615 - models - INFO - Data loaded and validated successfully
+2024-11-16 13:15:59,620 - __main__ - INFO - Starting server...
+2024-11-16 13:16:01,888 - models - INFO - Loading tasks from /home/dukhanin/agile_new/backend/data/data_for_spb_hakaton_entities1-Table 1.csv
+2024-11-16 13:16:01,952 - models - INFO - Loading sprints from /home/dukhanin/agile_new/backend/data/sprints-Table 1.csv
+2024-11-16 13:16:01,959 - models - INFO - 
+Verifying entity_ids parsing:
+2024-11-16 13:16:01,959 - models - INFO - Sprint Спринт 2024.3.1.NPP Shared Sprint: 464 tasks
+2024-11-16 13:16:01,959 - models - INFO - Sprint Спринт 2024.3.2.NPP Shared Sprint: 437 tasks
+2024-11-16 13:16:01,959 - models - INFO - Sprint Спринт 2024.3.3.NPP Shared Sprint: 501 tasks
+2024-11-16 13:16:01,960 - models - INFO - Sprint Спринт 2024.3.4.NPP Shared Sprint: 375 tasks
+2024-11-16 13:16:01,960 - models - INFO - Sprint Спринт 2024.3.5.NPP Shared Sprint: 540 tasks
+2024-11-16 13:16:01,960 - models - INFO - Sprint Спринт 2024.3.6.NPP Shared Sprint: 513 tasks
+2024-11-16 13:16:01,960 - models - INFO - Loading history from /home/dukhanin/agile_new/backend/data/history-Table 1.csv
+2024-11-16 13:16:02,996 - models - INFO - Data validation completed successfully
+2024-11-16 13:16:02,996 - models - INFO - Data loaded and validated successfully
+2024-11-16 13:16:02,996 - models - INFO - 
+Data Loading Information:
+2024-11-16 13:16:02,996 - models - INFO - 
+Tasks DataFrame:
+2024-11-16 13:16:02,996 - models - INFO - Shape: (2485, 21)
+2024-11-16 13:16:02,996 - models - INFO - Columns: ['entity_id', 'area', 'type', 'status', 'state', 'priority', 'ticket_number', 'name', 'create_date', 'created_by', 'update_date', 'updated_by', 'parent_ticket_id', 'assignee', 'owner', 'due_date', 'rank', 'estimation', 'spent', 'workgroup', 'resolution']
+2024-11-16 13:16:02,997 - models - INFO - 
+First row sample (first 5 columns):
+{'entity_id': np.int64(94297), 'area': 'Система.Таск-трекер', 'type': 'Дефект', 'status': 'Закрыто', 'state': 'Normal'}
+2024-11-16 13:16:02,997 - models - INFO - 
+Sprints DataFrame:
+2024-11-16 13:16:02,997 - models - INFO - Shape: (6, 5)
+2024-11-16 13:16:02,997 - models - INFO - Columns: ['sprint_name', 'sprint_status', 'sprint_start_date', 'sprint_end_date', 'entity_ids']
+2024-11-16 13:16:02,997 - models - INFO - 
+First row sample (first 4 columns):
+{'sprint_name': 'Спринт 2024.3.1.NPP Shared Sprint', 'sprint_status': 'Закрыт', 'sprint_start_date': Timestamp('2024-07-03 19:00:00'), 'sprint_end_date': Timestamp('2024-07-16 19:00:00')}
+2024-11-16 13:16:02,997 - models - INFO - 
+History DataFrame:
+2024-11-16 13:16:02,997 - models - INFO - Shape: (64179, 8)
+2024-11-16 13:16:02,997 - models - INFO - Columns: ['entity_id', 'history_property_name', 'history_date', 'history_version', 'history_change_type', 'history_change', 'Столбец1', np.float64(nan)]
+2024-11-16 13:16:02,998 - models - INFO - 
+First row sample (first 4 columns):
+{'entity_id': '94297', 'history_property_name': 'Время решения 3ЛП ФАКТ', 'history_date': Timestamp('2024-09-10 11:17:00'), 'history_version': '1'}
+2024-11-16 13:16:02,998 - models - INFO - 
+Unique entity_ids in Tasks DataFrame:
+2024-11-16 13:16:02,998 - models - INFO - Count: 2484
+2024-11-16 13:16:02,999 - models - INFO - Sample: <IntegerArray>
+[94297, 102481, 1805925, 1934905, 1943849]
+Length: 5, dtype: Int64
+2024-11-16 13:16:02,999 - models - INFO - 
+Sample of entity_ids in Sprints DataFrame:
+2024-11-16 13:16:02,999 - models - INFO - First sprint's entity_ids: [4433921, 4335618, 2867204, 4450312, 4327437]
+2024-11-16 13:16:03,407 - crud - INFO - Metrics calculated successfully
+2024-11-16 13:16:30,890 - __main__ - INFO - Shutting down gracefully...
+2024-11-16 13:20:58,612 - models - INFO - Loading tasks from /home/dukhanin/agile_new/backend/data/data_for_spb_hakaton_entities1-Table 1.csv
+2024-11-16 13:20:58,713 - models - INFO - Loading sprints from /home/dukhanin/agile_new/backend/data/sprints-Table 1.csv
+2024-11-16 13:20:58,731 - models - INFO - 
+Verifying entity_ids parsing:
+2024-11-16 13:20:58,732 - models - INFO - Sprint Спринт 2024.3.1.NPP Shared Sprint: 464 tasks
+2024-11-16 13:20:58,733 - models - INFO - Sprint Спринт 2024.3.2.NPP Shared Sprint: 437 tasks
+2024-11-16 13:20:58,733 - models - INFO - Sprint Спринт 2024.3.3.NPP Shared Sprint: 501 tasks
+2024-11-16 13:20:58,734 - models - INFO - Sprint Спринт 2024.3.4.NPP Shared Sprint: 375 tasks
+2024-11-16 13:20:58,734 - models - INFO - Sprint Спринт 2024.3.5.NPP Shared Sprint: 540 tasks
+2024-11-16 13:20:58,735 - models - INFO - Sprint Спринт 2024.3.6.NPP Shared Sprint: 513 tasks
+2024-11-16 13:20:58,735 - models - INFO - Loading history from /home/dukhanin/agile_new/backend/data/history-Table 1.csv
+2024-11-16 13:21:00,214 - models - INFO - Data validation completed successfully
+2024-11-16 13:21:00,214 - models - INFO - Data loaded and validated successfully
+2024-11-16 13:21:00,218 - __main__ - INFO - Starting server...
+2024-11-16 13:21:06,338 - models - INFO - Loading tasks from /home/dukhanin/agile_new/backend/data/data_for_spb_hakaton_entities1-Table 1.csv
+2024-11-16 13:21:06,402 - models - INFO - Loading sprints from /home/dukhanin/agile_new/backend/data/sprints-Table 1.csv
+2024-11-16 13:21:06,408 - models - INFO - 
+Verifying entity_ids parsing:
+2024-11-16 13:21:06,409 - models - INFO - Sprint Спринт 2024.3.1.NPP Shared Sprint: 464 tasks
+2024-11-16 13:21:06,409 - models - INFO - Sprint Спринт 2024.3.2.NPP Shared Sprint: 437 tasks
+2024-11-16 13:21:06,409 - models - INFO - Sprint Спринт 2024.3.3.NPP Shared Sprint: 501 tasks
+2024-11-16 13:21:06,409 - models - INFO - Sprint Спринт 2024.3.4.NPP Shared Sprint: 375 tasks
+2024-11-16 13:21:06,409 - models - INFO - Sprint Спринт 2024.3.5.NPP Shared Sprint: 540 tasks
+2024-11-16 13:21:06,409 - models - INFO - Sprint Спринт 2024.3.6.NPP Shared Sprint: 513 tasks
+2024-11-16 13:21:06,409 - models - INFO - Loading history from /home/dukhanin/agile_new/backend/data/history-Table 1.csv
+2024-11-16 13:21:07,601 - models - INFO - Data validation completed successfully
+2024-11-16 13:21:07,601 - models - INFO - Data loaded and validated successfully
+2024-11-16 13:21:07,601 - models - INFO - 
+Data Loading Information:
+2024-11-16 13:21:07,601 - models - INFO - 
+Tasks DataFrame:
+2024-11-16 13:21:07,601 - models - INFO - Shape: (2485, 21)
+2024-11-16 13:21:07,601 - models - INFO - Columns: ['entity_id', 'area', 'type', 'status', 'state', 'priority', 'ticket_number', 'name', 'create_date', 'created_by', 'update_date', 'updated_by', 'parent_ticket_id', 'assignee', 'owner', 'due_date', 'rank', 'estimation', 'spent', 'workgroup', 'resolution']
+2024-11-16 13:21:07,602 - models - INFO - 
+First row sample (first 5 columns):
+{'entity_id': np.int64(94297), 'area': 'Система.Таск-трекер', 'type': 'Дефект', 'status': 'Закрыто', 'state': 'Normal'}
+2024-11-16 13:21:07,602 - models - INFO - 
+Sprints DataFrame:
+2024-11-16 13:21:07,602 - models - INFO - Shape: (6, 5)
+2024-11-16 13:21:07,602 - models - INFO - Columns: ['sprint_name', 'sprint_status', 'sprint_start_date', 'sprint_end_date', 'entity_ids']
+2024-11-16 13:21:07,602 - models - INFO - 
+First row sample (first 4 columns):
+{'sprint_name': 'Спринт 2024.3.1.NPP Shared Sprint', 'sprint_status': 'Закрыт', 'sprint_start_date': Timestamp('2024-07-03 19:00:00'), 'sprint_end_date': Timestamp('2024-07-16 19:00:00')}
+2024-11-16 13:21:07,602 - models - INFO - 
+History DataFrame:
+2024-11-16 13:21:07,602 - models - INFO - Shape: (64179, 8)
+2024-11-16 13:21:07,602 - models - INFO - Columns: ['entity_id', 'history_property_name', 'history_date', 'history_version', 'history_change_type', 'history_change', 'Столбец1', np.float64(nan)]
+2024-11-16 13:21:07,603 - models - INFO - 
+First row sample (first 4 columns):
+{'entity_id': '94297', 'history_property_name': 'Время решения 3ЛП ФАКТ', 'history_date': Timestamp('2024-09-10 11:17:00'), 'history_version': '1'}
+2024-11-16 13:21:07,603 - models - INFO - 
+Unique entity_ids in Tasks DataFrame:
+2024-11-16 13:21:07,603 - models - INFO - Count: 2484
+2024-11-16 13:21:07,604 - models - INFO - Sample: <IntegerArray>
+[94297, 102481, 1805925, 1934905, 1943849]
+Length: 5, dtype: Int64
+2024-11-16 13:21:07,604 - models - INFO - 
+Sample of entity_ids in Sprints DataFrame:
+2024-11-16 13:21:07,604 - models - INFO - First sprint's entity_ids: [4433921, 4335618, 2867204, 4450312, 4327437]
+2024-11-16 13:21:08,008 - crud - INFO - Metrics calculated successfully
+2024-11-16 13:22:20,921 - crud - INFO - Metrics calculated successfully
+2024-11-16 13:22:25,409 - crud - INFO - Metrics calculated successfully
+2024-11-16 13:22:27,299 - crud - INFO - Metrics calculated successfully
+2024-11-16 13:22:28,675 - crud - INFO - Metrics calculated successfully
+2024-11-16 13:22:30,726 - crud - INFO - Metrics calculated successfully
+2024-11-16 13:22:32,443 - crud - INFO - Metrics calculated successfully
+2024-11-16 13:22:34,711 - crud - INFO - Metrics calculated successfully
+2024-11-16 13:22:52,659 - crud - INFO - Metrics calculated successfully
+2024-11-16 13:22:53,378 - crud - INFO - Metrics calculated successfully
+2024-11-16 13:22:53,965 - crud - INFO - Metrics calculated successfully
+2024-11-16 13:23:08,939 - crud - INFO - Metrics calculated successfully
+2024-11-16 13:23:17,316 - crud - INFO - Metrics calculated successfully
+2024-11-16 13:23:20,264 - crud - INFO - Metrics calculated successfully
+2024-11-16 13:23:22,963 - crud - INFO - Metrics calculated successfully
+2024-11-16 13:23:25,642 - crud - INFO - Metrics calculated successfully
+2024-11-16 13:23:26,323 - crud - INFO - Metrics calculated successfully
+2024-11-16 13:23:26,548 - crud - INFO - Metrics calculated successfully
+2024-11-16 13:23:26,856 - crud - INFO - Metrics calculated successfully
+2024-11-16 13:23:27,319 - crud - INFO - Metrics calculated successfully
+2024-11-16 13:23:27,500 - crud - INFO - Metrics calculated successfully
+2024-11-16 13:23:27,679 - crud - INFO - Metrics calculated successfully
+2024-11-16 13:23:28,001 - crud - INFO - Metrics calculated successfully
+2024-11-16 13:23:28,226 - crud - INFO - Metrics calculated successfully
+2024-11-16 13:23:28,402 - crud - INFO - Metrics calculated successfully
+2024-11-16 13:23:28,585 - crud - INFO - Metrics calculated successfully
+2024-11-16 13:23:30,112 - crud - INFO - Metrics calculated successfully
+2024-11-16 13:23:32,685 - crud - INFO - Metrics calculated successfully
