@@ -1,0 +1,139 @@
+2024-11-18 03:07:53,146 - __main__ - INFO - Starting server...
+2024-11-18 03:07:53,158 - data_loader - INFO - Loading datasets...
+2024-11-18 03:07:53,158 - data_loader - ERROR - Error loading datasets: Data directory not found. Tried paths:
+- /home/dukhanin/agile_new/new/data_for_spb_hakaton_entities
+- /home/dukhanin/agile_new/new/new/data_for_spb_hakaton_entities
+- /home/dukhanin/agile_new/new/analysis/data_for_spb_hakaton_entities
+- /home/dukhanin/agile_new/new/data_for_spb_hakaton_entities
+- /home/dukhanin/agile_new/data_for_spb_hakaton_entities
+- /home/dukhanin/agile_new/new/data_for_spb_hakaton_entities
+2024-11-18 03:07:53,158 - __main__ - ERROR - Failed to initialize Sprint Health Analyzer: Data directory not found. Tried paths:
+- /home/dukhanin/agile_new/new/data_for_spb_hakaton_entities
+- /home/dukhanin/agile_new/new/new/data_for_spb_hakaton_entities
+- /home/dukhanin/agile_new/new/analysis/data_for_spb_hakaton_entities
+- /home/dukhanin/agile_new/new/data_for_spb_hakaton_entities
+- /home/dukhanin/agile_new/data_for_spb_hakaton_entities
+- /home/dukhanin/agile_new/new/data_for_spb_hakaton_entities
+2024-11-18 03:08:33,613 - __main__ - INFO - Starting server...
+2024-11-18 03:08:33,623 - data_loader - INFO - Loading datasets...
+2024-11-18 03:08:33,623 - data_loader - INFO - Found data directory: data_for_spb_hakaton_entities
+2024-11-18 03:08:33,636 - data_loader - INFO - Loaded entities dataset: 2485 rows
+2024-11-18 03:08:37,829 - data_loader - INFO - Loaded history dataset: 64179 rows
+2024-11-18 03:08:37,832 - data_loader - INFO - Loaded sprints dataset: 6 rows
+2024-11-18 03:08:37,833 - data_loader - WARNING - Found 1 history entries referring to non-existent entities
+2024-11-18 03:08:37,833 - data_loader - INFO - Dataset validation completed successfully
+2024-11-18 03:08:37,833 - data_loader - INFO - All datasets loaded successfully
+2024-11-18 03:08:37,848 - sprint_health - INFO - Loading datasets...
+2024-11-18 03:08:37,848 - sprint_health - INFO - Using data directory: /home/dukhanin/agile_new/new/data_for_spb_hakaton_entities
+2024-11-18 03:08:37,848 - sprint_health - INFO - Loading entities data...
+2024-11-18 03:08:37,857 - sprint_health - INFO - Loading history data...
+2024-11-18 03:08:37,907 - sprint_health - INFO - Loading sprints data...
+2024-11-18 03:08:37,908 - sprint_health - INFO - 
+Preprocessing data...
+2024-11-18 03:08:37,909 - sprint_health - INFO - Processing history data...
+2024-11-18 03:08:37,933 - sprint_health - INFO - Splitting history_change into old_value and new_value
+2024-11-18 03:08:42,868 - sprint_health - INFO - Split 64179 history changes
+2024-11-18 03:08:42,868 - sprint_health - WARNING - Warning: 3059 invalid dates found in history data
+2024-11-18 03:08:42,868 - sprint_health - INFO - Converting dates...
+2024-11-18 03:08:42,871 - sprint_health - INFO - 
+Date parsing validation:
+2024-11-18 03:08:42,871 - sprint_health - INFO - Entities - create_date: 2485/2485 dates parsed successfully
+2024-11-18 03:08:42,871 - sprint_health - INFO - Entities - update_date: 2485/2485 dates parsed successfully
+2024-11-18 03:08:42,871 - sprint_health - INFO - Entities - due_date: 0/2485 dates parsed successfully
+2024-11-18 03:08:42,872 - sprint_health - INFO - Sprints - sprint_start_date: 6/6 dates parsed successfully
+2024-11-18 03:08:42,872 - sprint_health - INFO - Sprints - sprint_end_date: 6/6 dates parsed successfully
+2024-11-18 03:08:42,872 - sprint_health - INFO - History - history_date: 61120/64179 dates parsed successfully
+2024-11-18 03:08:42,872 - sprint_health - INFO - Calculating processing time...
+2024-11-18 03:08:42,873 - sprint_health - INFO - Calculated processing time for 2485 tasks
+2024-11-18 03:08:42,873 - sprint_health - INFO - 
+Datasets preprocessed successfully
+2024-11-18 03:08:42,874 - sprint_health - INFO - All datasets loaded successfully
+2024-11-18 03:08:42,874 - __main__ - INFO - Sprint Health Analyzer initialized successfully
+2024-11-18 03:09:27,696 - sprint_health - INFO - Found 465 tasks for sprint
+2024-11-18 03:09:28,192 - sprint_health_calculator - INFO - 
+Calculating health scores for sprint with 465 tasks
+2024-11-18 03:09:28,192 - sprint_health_calculator - INFO - Daily metrics available: True
+2024-11-18 03:09:28,192 - sprint_health_calculator - INFO - Days with metrics: 7
+2024-11-18 03:09:28,193 - sprint_health_calculator - INFO - Todo percentage: 2.2% -> score: 0.85
+2024-11-18 03:09:28,193 - sprint_health_calculator - INFO - Removed percentage: 3.2% -> score: 0.78
+2024-11-18 03:09:28,194 - sprint_health_calculator - INFO - Backlog change: 65.0% -> score: 0.00
+2024-11-18 03:09:28,194 - sprint_health_calculator - INFO - Status uniformity score: 0.91
+2024-11-18 03:09:28,194 - sprint_health_calculator - INFO - Completion rate: 0.94
+2024-11-18 03:09:28,194 - sprint_health_calculator - INFO - Burndown adherence score: 0.52
+2024-11-18 03:09:28,195 - sprint_health_calculator - INFO - Team collaboration score: 1.00
+2024-11-18 03:09:28,195 - sprint_health_calculator - INFO - Task aging score: 0.30
+2024-11-18 03:09:28,195 - sprint_health_calculator - INFO - Work distribution score: 0.30
+2024-11-18 03:09:28,196 - sprint_health_calculator - INFO - Velocity stability score: 1.00
+2024-11-18 03:09:28,204 - sprint_health_calculator - INFO - 
+            Sprint Health Summary:
+            Components using defaults: None
+            Weights sum: 1.0
+            Final Score: 0.69
+            Advanced Score: 0.05
+            
+2024-11-18 03:09:28,220 - sprint_health - INFO - Found 465 tasks for sprint
+2024-11-18 03:09:28,699 - sprint_health_calculator - INFO - 
+Calculating health scores for sprint with 465 tasks
+2024-11-18 03:09:28,699 - sprint_health_calculator - INFO - Daily metrics available: True
+2024-11-18 03:09:28,699 - sprint_health_calculator - INFO - Days with metrics: 14
+2024-11-18 03:09:28,700 - sprint_health_calculator - INFO - Todo percentage: 2.2% -> score: 0.85
+2024-11-18 03:09:28,700 - sprint_health_calculator - INFO - Removed percentage: 3.2% -> score: 0.78
+2024-11-18 03:09:28,701 - sprint_health_calculator - INFO - Backlog change: 65.0% -> score: 0.00
+2024-11-18 03:09:28,701 - sprint_health_calculator - INFO - Status uniformity score: 0.72
+2024-11-18 03:09:28,701 - sprint_health_calculator - INFO - Completion rate: 0.94
+2024-11-18 03:09:28,701 - sprint_health_calculator - INFO - Burndown adherence score: 0.39
+2024-11-18 03:09:28,701 - sprint_health_calculator - INFO - Team collaboration score: 1.00
+2024-11-18 03:09:28,702 - sprint_health_calculator - INFO - Task aging score: 0.30
+2024-11-18 03:09:28,702 - sprint_health_calculator - INFO - Work distribution score: 0.30
+2024-11-18 03:09:28,702 - sprint_health_calculator - INFO - Velocity stability score: 0.41
+2024-11-18 03:09:28,703 - sprint_health_calculator - INFO - 
+            Sprint Health Summary:
+            Components using defaults: None
+            Weights sum: 1.0
+            Final Score: 0.61
+            Advanced Score: 0.05
+            
+2024-11-18 03:09:28,709 - sprint_health - INFO - Found 437 tasks for sprint
+2024-11-18 03:09:29,172 - sprint_health_calculator - INFO - 
+Calculating health scores for sprint with 437 tasks
+2024-11-18 03:09:29,172 - sprint_health_calculator - INFO - Daily metrics available: True
+2024-11-18 03:09:29,172 - sprint_health_calculator - INFO - Days with metrics: 14
+2024-11-18 03:09:29,172 - sprint_health_calculator - INFO - Todo percentage: 3.9% -> score: 0.74
+2024-11-18 03:09:29,173 - sprint_health_calculator - INFO - Removed percentage: 1.4% -> score: 0.91
+2024-11-18 03:09:29,173 - sprint_health_calculator - INFO - Backlog change: 29.9% -> score: 0.00
+2024-11-18 03:09:29,173 - sprint_health_calculator - INFO - Status uniformity score: 0.75
+2024-11-18 03:09:29,174 - sprint_health_calculator - INFO - Completion rate: 0.90
+2024-11-18 03:09:29,174 - sprint_health_calculator - INFO - Burndown adherence score: 0.41
+2024-11-18 03:09:29,174 - sprint_health_calculator - INFO - Team collaboration score: 1.00
+2024-11-18 03:09:29,175 - sprint_health_calculator - INFO - Task aging score: 0.30
+2024-11-18 03:09:29,175 - sprint_health_calculator - INFO - Work distribution score: 0.30
+2024-11-18 03:09:29,175 - sprint_health_calculator - INFO - Velocity stability score: 0.51
+2024-11-18 03:09:29,176 - sprint_health_calculator - INFO - 
+            Sprint Health Summary:
+            Components using defaults: None
+            Weights sum: 1.0
+            Final Score: 0.62
+            Advanced Score: 0.03
+            
+2024-11-18 03:09:29,189 - sprint_health - INFO - Found 465 tasks for sprint
+2024-11-18 03:09:29,673 - sprint_health_calculator - INFO - 
+Calculating health scores for sprint with 465 tasks
+2024-11-18 03:09:29,673 - sprint_health_calculator - INFO - Daily metrics available: True
+2024-11-18 03:09:29,673 - sprint_health_calculator - INFO - Days with metrics: 14
+2024-11-18 03:09:29,673 - sprint_health_calculator - INFO - Todo percentage: 2.2% -> score: 0.85
+2024-11-18 03:09:29,674 - sprint_health_calculator - INFO - Removed percentage: 3.2% -> score: 0.78
+2024-11-18 03:09:29,674 - sprint_health_calculator - INFO - Backlog change: 65.0% -> score: 0.00
+2024-11-18 03:09:29,675 - sprint_health_calculator - INFO - Status uniformity score: 0.72
+2024-11-18 03:09:29,675 - sprint_health_calculator - INFO - Completion rate: 0.94
+2024-11-18 03:09:29,675 - sprint_health_calculator - INFO - Burndown adherence score: 0.39
+2024-11-18 03:09:29,675 - sprint_health_calculator - INFO - Team collaboration score: 1.00
+2024-11-18 03:09:29,676 - sprint_health_calculator - INFO - Task aging score: 0.30
+2024-11-18 03:09:29,676 - sprint_health_calculator - INFO - Work distribution score: 0.30
+2024-11-18 03:09:29,676 - sprint_health_calculator - INFO - Velocity stability score: 0.41
+2024-11-18 03:09:29,677 - sprint_health_calculator - INFO - 
+            Sprint Health Summary:
+            Components using defaults: None
+            Weights sum: 1.0
+            Final Score: 0.61
+            Advanced Score: 0.05
+            
