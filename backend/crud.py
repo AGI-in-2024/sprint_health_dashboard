@@ -465,7 +465,7 @@ def validate_task_data(tasks_df):
     return validation_results
 
 def calculate_metrics(tasks, sprints, history_df, selected_sprints, selected_areas, time_frame):
-    """Calculate metrics with improved logging and validation"""
+    """Calculate metrics with both basic and advanced health scores"""
     try:
         # Input validation and logging
         logger.info(f"\nCalculating metrics for:")
@@ -482,10 +482,14 @@ def calculate_metrics(tasks, sprints, history_df, selected_sprints, selected_are
         if sprints.empty:
             raise ValueError("No sprint data available")
             
-        # Get sprint information
-        sprint_info = sprints[sprints['sprint_name'].isin(selected_sprints)]
+        # Get sprint information - filter by both sprint name and area
+        sprint_info = sprints[
+            (sprints['sprint_name'].isin(selected_sprints)) &
+            (sprints['area'].isin(selected_areas))
+        ]
+        
         if sprint_info.empty:
-            raise ValueError(f"No sprint found with names: {selected_sprints}")
+            raise ValueError(f"No sprint found with names: {selected_sprints} and areas: {selected_areas}")
         sprint_info = sprint_info.iloc[0]
         
         # Handle empty tasks DataFrame
@@ -563,8 +567,16 @@ def calculate_metrics(tasks, sprints, history_df, selected_sprints, selected_are
         # Add data validation after filtering
         validate_task_data(sprint_tasks)
         
-        # Calculate metrics
+        # Calculate basic metrics
         metrics = _calculate_base_metrics(sprint_tasks, sprint_info, history_df)
+        
+        # Add advanced health calculation
+        advanced_health = calculate_advanced_sprint_health(
+            metrics, sprint_tasks, history_df, sprint_info
+        )
+        
+        # Add advanced health score to metrics
+        metrics['advanced_health'] = advanced_health
         
         logger.info("\nCalculated metrics summary:")
         logger.info(f"Todo: {metrics['todo']}")
@@ -578,3 +590,159 @@ def calculate_metrics(tasks, sprints, history_df, selected_sprints, selected_are
     except Exception as e:
         logger.error(f"Error in calculate_metrics: {str(e)}")
         raise
+
+def calculate_advanced_sprint_health(metrics, tasks_df, history_df, sprint_info):
+    """
+    Calculate a more sophisticated sprint health score using multiple weighted factors
+    and dynamic adjustments.
+    """
+    try:
+        # Initialize base components
+        health_components = {
+            'progression_score': 0,
+            'stability_score': 0,
+            'efficiency_score': 0,
+            'quality_score': 0,
+            'workload_score': 0
+        }
+        
+        # 1. Task Progression Score (25% weight)
+        total_tasks = metrics['todo'] + metrics['in_progress'] + metrics['done'] + metrics['removed']
+        if total_tasks > 0:
+            # Calculate ideal progress based on sprint timeline
+            sprint_start = pd.to_datetime(sprint_info['sprint_start_date'])
+            sprint_end = pd.to_datetime(sprint_info['sprint_end_date'])
+            sprint_duration = (sprint_end - sprint_start).days
+            days_passed = (pd.Timestamp.now() - sprint_start).days
+            
+            if days_passed > 0 and sprint_duration > 0:
+                expected_completion = min(1.0, days_passed / sprint_duration)
+                actual_completion = metrics['done'] / total_tasks
+                progression_variance = abs(actual_completion - expected_completion)
+                
+                # Non-linear scoring for progression
+                health_components['progression_score'] = (
+                    25 * (1 - (progression_variance ** 0.7))  # Non-linear penalty
+                )
+        
+        # 2. Stability Score (20% weight)
+        backlog_change_penalty = min(20, max(0, 20 * (1 - abs(metrics['backlog_changes']) / 40)))
+        health_components['stability_score'] = backlog_change_penalty
+        
+        # 3. Efficiency Score (25% weight)
+        # Calculate velocity consistency
+        status_transitions = metrics['status_transitions']
+        transition_evenness = status_transitions['transition_evenness'] / 100
+        last_day_completion_ratio = min(1.0, status_transitions['last_day_completion_percentage'] / 30)
+        
+        efficiency_score = 25 * (
+            0.6 * transition_evenness +  # Weight for consistent progress
+            0.4 * (1 - last_day_completion_ratio)  # Weight for avoiding last-day rushes
+        )
+        health_components['efficiency_score'] = efficiency_score
+        
+        # 4. Quality Score (15% weight)
+        if total_tasks > 0:
+            removed_ratio = metrics['removed'] / total_tasks
+            blocked_ratio = metrics['blocked_tasks'] / total_tasks if 'blocked_tasks' in metrics else 0
+            
+            quality_score = 15 * (
+                1 - (removed_ratio * 0.6 + blocked_ratio * 0.4)  # Weighted combination
+            )
+            health_components['quality_score'] = max(0, quality_score)
+        
+        # 5. Workload Balance Score (15% weight)
+        if not tasks_df.empty:
+            assignee_tasks = tasks_df['assignee'].value_counts()
+            if len(assignee_tasks) > 0:
+                # Calculate workload distribution evenness
+                mean_tasks = assignee_tasks.mean()
+                std_tasks = assignee_tasks.std() if len(assignee_tasks) > 1 else 0
+                cv = std_tasks / mean_tasks if mean_tasks > 0 else 0
+                
+                # Score based on coefficient of variation (lower is better)
+                workload_score = 15 * (1 - min(1, cv))
+                health_components['workload_score'] = workload_score
+        
+        # Calculate final score with dynamic weights
+        base_score = sum(health_components.values())
+        
+        # Apply contextual adjustments
+        adjustments = 0
+        
+        # Adjustment 1: Sprint size adjustment
+        if total_tasks < 5:
+            adjustments -= 10  # Small sprints penalty
+        elif total_tasks > 50:
+            adjustments -= 5   # Very large sprints penalty
+            
+        # Adjustment 2: Sprint progress bonus
+        if days_passed > sprint_duration * 0.8:  # Near sprint end
+            if metrics['done'] / total_tasks > 0.9:  # High completion rate
+                adjustments += 5
+                
+        # Adjustment 3: Consistency bonus
+        if transition_evenness > 0.8 and last_day_completion_ratio < 0.2:
+            adjustments += 5
+            
+        # Calculate final score
+        final_score = max(0, min(100, base_score + adjustments))
+        
+        # Prepare detailed breakdown
+        details = {
+            'base_components': health_components,
+            'adjustments': adjustments,
+            'context': {
+                'sprint_size': total_tasks,
+                'days_progress': f"{days_passed}/{sprint_duration}",
+                'completion_rate': f"{(metrics['done'] / total_tasks * 100):.1f}%" if total_tasks > 0 else "0%"
+            }
+        }
+        
+        return {
+            'score': final_score,
+            'details': details,
+            'components': health_components,
+            'interpretation': interpret_health_score(final_score, health_components)
+        }
+        
+    except Exception as e:
+        logger.error(f"Error calculating advanced sprint health: {str(e)}")
+        return {
+            'score': 0,
+            'details': {'error': str(e)},
+            'components': {},
+            'interpretation': "Error calculating health score"
+        }
+
+def interpret_health_score(score, components):
+    """Provide meaningful interpretation of the health score"""
+    if score >= 90:
+        return "Excellent sprint health. Maintaining optimal performance and stability."
+    elif score >= 80:
+        return "Very good sprint health. Minor improvements possible in " + \
+               identify_weak_components(components)
+    elif score >= 70:
+        return "Good sprint health. Consider improvements in " + \
+               identify_weak_components(components)
+    elif score >= 60:
+        return "Fair sprint health. Attention needed in " + \
+               identify_weak_components(components)
+    elif score >= 50:
+        return "Concerning sprint health. Immediate attention required for " + \
+               identify_weak_components(components)
+    else:
+        return "Critical sprint health. Major improvements needed in multiple areas: " + \
+               identify_weak_components(components)
+
+def identify_weak_components(components):
+    """Identify the weakest components of the sprint health score"""
+    weak_components = []
+    for component, score in components.items():
+        max_score = 25 if 'progression' in component or 'efficiency' in component else \
+                   20 if 'stability' in component else 15
+        
+        if score < (max_score * 0.7):  # Less than 70% of max possible score
+            weak_components.append(component.replace('_score', ''))
+    
+    return ', '.join(weak_components) if weak_components else "all areas performing adequately"

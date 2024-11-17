@@ -129,11 +129,11 @@ export function SprintTimeline({
 
   // Update click handlers to use the new safe update function
   const handleMilestoneClick = (milestone: Milestone) => {
-    const percentage = (milestone.day / totalDays) * 100;
-    handleTimelineUpdate(
-      isNaN(percentage) ? 100 : percentage,
-      milestone.day
-    );
+    // Calculate the percentage based on milestone day and total days
+    const percentage = Math.min((milestone.day / timelineInfo.totalDays) * 100, 100);
+    
+    // Ensure we're passing both percentage and day to the parent
+    handleTimelineUpdate(percentage, milestone.day);
   };
 
   return (
@@ -192,19 +192,10 @@ export function SprintTimeline({
           {/* Navigation controls */}
           <div className="flex flex-wrap gap-2 justify-center">
             {type === 'sprint' ? (
-              // Single sprint navigation
-              milestones.map((milestone) => (
-                <Button
-                  key={milestone.id}
-                  variant={currentDay === milestone.day ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => handleMilestoneClick(milestone)}
-                >
-                  {milestone.label}
-                </Button>
-              ))
+              // Remove the buttons for single sprint view - we'll just use the timeline visualization
+              null
             ) : (
-              // Multiple sprints navigation
+              // Multiple sprints navigation - remains the same
               <div className="flex gap-2">
                 <Button
                   variant="outline"

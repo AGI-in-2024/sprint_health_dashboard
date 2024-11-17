@@ -1,0 +1,10 @@
+sprint_health/
+├── analysis/
+│   ├── __init__.py
+│   ├── sprint_analyzer.py    # Core analysis logic
+│   └── metrics.py           # Sprint health metrics calculations
+├── data/
+│   └── data_processor.py    # Data loading and preprocessing
+├── visualization/
+│   └── visualizer.py        # Plotting and chart generation
+└── main.py                  # Entry point

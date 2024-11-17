@@ -17,55 +17,64 @@ import {
   TooltipProps
 } from 'recharts';
 
-type ChartTooltipProps = {
-  active?: boolean;
-  payload?: Array<{
-    value: number | undefined;
-    name: string;
-    color: string;
-    dataKey: string;
-    payload: {
-      [key: string]: number;
-    };
+// Update the types to match the actual data structure
+type SprintMetrics = {
+  todo: number;
+  in_progress: number;
+  done: number;
+  removed: number;
+  blocked_tasks: number;
+  daily_changes: Array<{
+    day: number;
+    added: number;
+    removed: number;
   }>;
-  label?: string | number;
+  health_percentage: number;
 }
 
 type ChartProps = {
-  metrics: {
-    todo?: number;
-    in_progress?: number;
-    done?: number;
-    removed?: number;
-    blocked_tasks?: number;
-    daily_changes?: Array<{
-      day: number;
-      added: number;
-      removed: number;
-      done?: number;
-      in_progress?: number;
-    }>;
-  } | null;
+  metrics: SprintMetrics | null;
 }
 
-export function SprintCharts({ metrics }: ChartProps) {
-  if (!metrics) return null;
+const CustomTooltip = ({ active, payload, label }: TooltipProps<number, string>) => {
+  if (active && payload && payload.length) {
+    return (
+      <div className="bg-background border rounded-lg shadow-lg p-3">
+        <p className="font-semibold">{`Day ${label}`}</p>
+        {payload.map((entry, index) => (
+          <p key={index} style={{ color: entry.color }}>
+            {`${entry.name}: ${entry.value}`}
+          </p>
+        ))}
+      </div>
+    );
+  }
+  return null;
+};
 
-  const renderTooltip = ({ active, payload, label }: TooltipProps<number, string>) => {
-    if (active && payload && payload.length) {
-      return (
-        <div className="bg-white p-2 border rounded shadow-lg">
-          <p className="font-bold">{label}</p>
-          {payload.map((entry) => (
-            <p key={entry.dataKey}>
-              {entry.name}: {entry.value}
-            </p>
-          ))}
-        </div>
-      );
-    }
-    return null;
-  };
+export function SprintCharts({ metrics }: ChartProps) {
+  if (!metrics) {
+    return (
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <Card>
+          <CardHeader>
+            <CardTitle>No data available</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-muted-foreground">Please select a sprint to view metrics</p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  // Transform data for the task distribution chart
+  const distributionData = [
+    { name: 'To Do', value: metrics.todo },
+    { name: 'In Progress', value: metrics.in_progress },
+    { name: 'Done', value: metrics.done },
+    { name: 'Removed', value: metrics.removed }
+  ];
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -74,38 +83,48 @@ export function SprintCharts({ metrics }: ChartProps) {
         <CardHeader>
           <CardTitle>Task Distribution</CardTitle>
         </CardHeader>
-        <CardContent className="h-[300px]">
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={[
-              { name: 'To Do', value: metrics?.todo || 0 },
-              { name: 'In Progress', value: metrics?.in_progress || 0 },
-              { name: 'Done', value: metrics?.done || 0 },
-              { name: 'Removed', value: metrics?.removed || 0 }
-            ]}>
+        <CardContent className="min-h-[400px] w-full">
+          <ResponsiveContainer width="100%" height={350}>
+            <BarChart data={distributionData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="name" />
               <YAxis />
-              <RechartsTooltip content={renderTooltip} />
+              <RechartsTooltip content={CustomTooltip} />
               <Bar dataKey="value" fill="#8884d8" />
             </BarChart>
           </ResponsiveContainer>
         </CardContent>
       </Card>
 
-      {/* Backlog Changes Chart */}
+      {/* Daily Changes Chart */}
       <Card>
         <CardHeader>
-          <CardTitle>Backlog Changes Over Time</CardTitle>
+          <CardTitle>Daily Task Changes</CardTitle>
         </CardHeader>
-        <CardContent className="h-[300px]">
-          <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={metrics?.daily_changes || []}>
+        <CardContent className="min-h-[400px] w-full">
+          <ResponsiveContainer width="100%" height={350}>
+            <LineChart 
+              data={metrics.daily_changes}
+              margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+            >
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="day" />
               <YAxis />
-              <RechartsTooltip content={renderTooltip} />
-              <Line type="monotone" dataKey="added" stroke="#4CAF50" name="Added" />
-              <Line type="monotone" dataKey="removed" stroke="#f44336" name="Removed" />
+              <RechartsTooltip content={CustomTooltip} />
+              <Line 
+                type="monotone" 
+                dataKey="added" 
+                stroke="#4CAF50" 
+                name="Added Tasks"
+                dot={false}
+              />
+              <Line 
+                type="monotone" 
+                dataKey="removed" 
+                stroke="#f44336" 
+                name="Removed Tasks"
+                dot={false}
+              />
             </LineChart>
           </ResponsiveContainer>
         </CardContent>
@@ -114,20 +133,23 @@ export function SprintCharts({ metrics }: ChartProps) {
       {/* Velocity Trend */}
       <Card>
         <CardHeader>
-          <CardTitle>Velocity Trend</CardTitle>
+          <CardTitle>Task Completion Trend</CardTitle>
         </CardHeader>
-        <CardContent className="h-[300px]">
-          <ResponsiveContainer width="100%" height="100%">
-            <AreaChart data={metrics?.daily_changes || []}>
+        <CardContent className="min-h-[400px] w-full">
+          <ResponsiveContainer width="100%" height={350}>
+            <AreaChart 
+              data={metrics.daily_changes}
+              margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+            >
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="day" />
               <YAxis />
-              <RechartsTooltip content={renderTooltip} />
-              <Area 
-                type="monotone" 
-                dataKey="done" 
-                stroke="#2196F3" 
-                fill="#2196F3" 
+              <RechartsTooltip content={CustomTooltip} />
+              <Area
+                type="monotone"
+                dataKey="done"
+                stroke="#2196F3"
+                fill="#2196F3"
                 fillOpacity={0.3}
                 name="Completed Tasks"
               />
@@ -136,20 +158,23 @@ export function SprintCharts({ metrics }: ChartProps) {
         </CardContent>
       </Card>
 
-      {/* Daily Task Changes Chart */}
+      {/* Task Status Changes */}
       <Card>
         <CardHeader>
-          <CardTitle>Daily Task Changes</CardTitle>
+          <CardTitle>Task Status Distribution</CardTitle>
         </CardHeader>
-        <CardContent className="h-[300px]">
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={metrics?.daily_changes || []}>
+        <CardContent className="min-h-[400px] w-full">
+          <ResponsiveContainer width="100%" height={350}>
+            <BarChart 
+              data={metrics.daily_changes}
+              margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+            >
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="day" />
               <YAxis />
-              <RechartsTooltip content={renderTooltip} />
-              <Bar dataKey="added" fill="#4CAF50" name="Added Tasks" />
-              <Bar dataKey="removed" fill="#f44336" name="Removed Tasks" />
+              <RechartsTooltip content={CustomTooltip} />
+              <Bar dataKey="added" stackId="a" fill="#4CAF50" name="Added" />
+              <Bar dataKey="removed" stackId="a" fill="#f44336" name="Removed" />
             </BarChart>
           </ResponsiveContainer>
         </CardContent>

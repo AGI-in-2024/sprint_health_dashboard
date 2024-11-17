@@ -510,6 +510,199 @@ def test_data_quality():
         if metrics['done']/total > 0.95:
             print("WARNING: Unusually high completion rate!")
 
+def test_sprint_comparison():
+    """Test sprint comparison functionality"""
+    try:
+        # Get available sprints and areas
+        sprints_response = requests.get(f"{BASE_URL}/sprints")
+        areas_response = requests.get(f"{BASE_URL}/areas")
+        
+        if sprints_response.status_code != 200:
+            print(f"Failed to retrieve sprints: Status code {sprints_response.status_code}")
+            print(f"Response: {sprints_response.text}")
+            sprints_response.raise_for_status()
+        
+        if areas_response.status_code != 200:
+            print(f"Failed to retrieve areas: Status code {areas_response.status_code}")
+            print(f"Response: {areas_response.text}")
+            areas_response.raise_for_status()
+        
+        sprints = sprints_response.json().get("sprints", [])
+        areas = areas_response.json().get("areas", [])
+        
+        if len(sprints) < 2:
+            print("Skipping sprint comparison test - need at least 2 sprints")
+            return
+        
+        # Select first two sprints and first area
+        selected_sprints = sprints[:2]
+        selected_areas = areas[:1]
+        
+        print(f"\nSelected Sprints: {selected_sprints}")
+        print(f"Selected Areas: {selected_areas}")
+        
+        # Initialize DataLoader and load data
+        data_loader = DataLoader()
+        data_loader.load_data()
+        
+        # Verify entity_ids for selected sprints
+        sprint_tasks = {}
+        for sprint in selected_sprints:
+            sprint_info = data_loader.sprints[data_loader.sprints['sprint_name'] == sprint]
+            if not sprint_info.empty:
+                entity_ids = sprint_info.iloc[0]['entity_ids']
+                tasks = data_loader.tasks[
+                    (data_loader.tasks['entity_id'].isin(entity_ids)) &
+                    (data_loader.tasks['area'].isin(selected_areas))
+                ]
+                sprint_tasks[sprint] = len(tasks)
+                print(f"Found {len(tasks)} tasks for sprint {sprint}")
+        
+        if all(count == 0 for count in sprint_tasks.values()):
+            print("No tasks found for selected sprints and areas. Skipping test.")
+            return
+        
+        # Make the API request
+        params = {
+            "selected_sprints[]": selected_sprints,
+            "selected_areas[]": selected_areas
+        }
+        
+        response = requests.get(f"{BASE_URL}/plot-data/sprint-comparison", params=params)
+        
+        print(f"\nRequest URL: {response.url}")
+        print(f"Status Code: {response.status_code}")
+        print(f"Response Body: {response.text}")
+        
+        assert response.status_code == 200, f"Expected status code 200, got {response.status_code}"
+        
+        data = response.json()
+        print(f"Sprint comparison response data: {data}")
+        
+        # Validate response structure
+        assert isinstance(data, list), "Response should be a list"
+        assert len(data) > 0, "Response list should not be empty"
+        
+        for sprint_data in data:
+            # Check required fields based on dataset description
+            assert "sprint_name" in sprint_data, "Missing 'sprint_name' in response"
+            assert "total_tasks" in sprint_data, "Missing 'total_tasks' in response"
+            assert "completion_rate" in sprint_data, "Missing 'completion_rate' in response"
+            assert "status_distribution" in sprint_data, "Missing 'status_distribution' in response"
+            assert "type_distribution" in sprint_data, "Missing 'type_distribution' in response"
+            
+            # Validate data types
+            assert isinstance(sprint_data["sprint_name"], str)
+            assert isinstance(sprint_data["total_tasks"], (int, float))
+            assert isinstance(sprint_data["completion_rate"], (int, float))
+            assert isinstance(sprint_data["status_distribution"], dict)
+            assert isinstance(sprint_data["type_distribution"], dict)
+            
+            # Validate completion rate range
+            assert 0 <= sprint_data["completion_rate"] <= 100, "Completion rate should be between 0 and 100"
+            
+            print(f"\nValidated sprint data for: {sprint_data['sprint_name']}")
+            print(f"Total Tasks: {sprint_data['total_tasks']}")
+            print(f"Completion Rate: {sprint_data['completion_rate']}%")
+        
+        print("✓ Sprint comparison test passed")
+        
+    except Exception as e:
+        print(f"✗ Sprint comparison test failed: {str(e)}")
+        raise
+
+def test_team_analytics():
+    """Test team analytics functionality"""
+    try:
+        # Get available sprints and areas
+        sprints_response = requests.get(f"{BASE_URL}/sprints")
+        areas_response = requests.get(f"{BASE_URL}/areas")
+        
+        sprints = sprints_response.json()["sprints"]
+        areas = areas_response.json()["areas"]
+        
+        params = {
+            "selected_sprints[]": [sprints[0]],
+            "selected_areas[]": areas[:2]
+        }
+        
+        response = requests.get(f"{BASE_URL}/plot-data/team-analytics", params=params)
+        assert response.status_code == 200
+        
+        data = response.json()
+        assert isinstance(data, list)
+        
+        for sprint_data in data:
+            assert "sprint_name" in sprint_data
+            assert "team_metrics" in sprint_data
+            
+            for team_metrics in sprint_data["team_metrics"].values():
+                assert "task_count" in team_metrics
+                assert "completion_rate" in team_metrics
+                assert "efficiency" in team_metrics
+                
+        print("✓ Team analytics test passed")
+        
+    except Exception as e:
+        print(f"✗ Team analytics test failed: {str(e)}")
+        raise
+
+def test_bottleneck_analysis():
+    """Test bottleneck analysis functionality"""
+    try:
+        # Get available sprints and areas
+        sprints_response = requests.get(f"{BASE_URL}/sprints")
+        areas_response = requests.get(f"{BASE_URL}/areas")
+        
+        sprints = sprints_response.json()["sprints"]
+        areas = areas_response.json()["areas"]
+        
+        params = {
+            "selected_sprints[]": [sprints[0]],
+            "selected_areas[]": areas[:1]
+        }
+        
+        response = requests.get(f"{BASE_URL}/plot-data/bottleneck-analysis", params=params)
+        assert response.status_code == 200
+        
+        data = response.json()
+        assert isinstance(data, list)
+        
+        for sprint_data in data:
+            assert "sprint_name" in sprint_data
+            assert "status_duration" in sprint_data
+            assert "transitions" in sprint_data
+            assert "bottlenecks" in sprint_data
+            assert "status_distribution" in sprint_data
+            
+        print("✓ Bottleneck analysis test passed")
+        
+    except Exception as e:
+        print(f"✗ Bottleneck analysis test failed: {str(e)}")
+        raise
+
+def test_list_sprints_and_areas():
+    """List available sprints and areas for selection"""
+    try:
+        sprints_response = requests.get(f"{BASE_URL}/sprints")
+        areas_response = requests.get(f"{BASE_URL}/areas")
+        
+        if sprints_response.status_code == 200:
+            sprints = sprints_response.json().get("sprints", [])
+            print(f"Available Sprints: {sprints}")
+        else:
+            print(f"Failed to retrieve sprints: Status code {sprints_response.status_code}")
+        
+        if areas_response.status_code == 200:
+            areas = areas_response.json().get("areas", [])
+            print(f"Available Areas: {areas}")
+        else:
+            print(f"Failed to retrieve areas: Status code {areas_response.status_code}")
+            
+    except Exception as e:
+        print(f"✗ Listing sprints and areas failed: {str(e)}")
+        raise
+
 def main():
     """Run all tests"""
     print("\nRunning API tests...\n")
@@ -529,8 +722,23 @@ def main():
         test_status_mapping()
         test_detailed_time_progression()
         test_data_quality()
+        test_sprint_comparison()
+        test_team_analytics()
+        test_bottleneck_analysis()
+        test_sprint_statistics_endpoint()
+        test_workload_analysis_endpoint()
+        test_trend_analysis_endpoint()
+        test_task_flow_endpoint()
+        test_task_distribution_endpoint()
+        test_sprint_health_indicators_endpoint()
+        test_sprint_velocity_endpoint()
+        test_backlog_stability_endpoint()
+        test_sprint_comparison_endpoint()
+        test_team_analytics_endpoint()
+        test_bottleneck_analysis_endpoint()
+        test_list_sprints_and_areas()
         print("\n✓ All tests passed successfully!")
-    except AssertionError as e:
+    except Exception as e:
         print(f"\n✗ Test failed: {str(e)}")
     except requests.exceptions.ConnectionError:
         print("\n✗ Error: Could not connect to the API server. Make sure it's running on http://localhost:8000")

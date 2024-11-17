@@ -11,11 +11,14 @@ class DataLoader:
         self.sprints = pd.DataFrame()
         self.history = pd.DataFrame()
         
+        # Add data_dir attribute
+        self.data_dir = os.path.join(os.path.dirname(__file__), 'data')
+        
         # Add error state tracking
         self.is_loaded = False
         self.load_errors = []
         
-        # Configure logging with file handler
+        # Configure logging
         logging.basicConfig(
             level=logging.INFO,
             format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -140,38 +143,96 @@ class DataLoader:
         self.tasks = tasks_df
 
     def _load_sprints(self):
-        data_dir = os.path.join(os.path.dirname(__file__), 'data')
-
-        # Load sprints data
-        sprints_path = os.path.join(data_dir, 'sprints-Table 1.csv')
-        self.logger.info(f"Loading sprints from {sprints_path}")
-        
-        sprints_df = pd.read_csv(sprints_path, sep=';', encoding='utf-8')
-        
-        if isinstance(sprints_df.index, pd.MultiIndex):
-            sprints_df = sprints_df.reset_index()
-            column_names = sprints_df.iloc[0]
-            sprints_df = sprints_df.iloc[1:].reset_index(drop=True)
-            sprints_df.columns = column_names
-        
-        # Parse dates for sprints
-        sprints_date_cols = ['sprint_start_date', 'sprint_end_date']
-        sprints_df = self._parse_dates(sprints_df, sprints_date_cols)
-        
-        # Process entity_ids with more robust parsing
-        if 'entity_ids' in sprints_df.columns:
-            sprints_df['entity_ids'] = sprints_df['entity_ids'].apply(self.parse_entity_ids)
-            # Verify entity_ids are properly parsed
-            self.logger.info("\nVerifying entity_ids parsing:")
-            for idx, row in sprints_df.iterrows():
-                if not isinstance(row['entity_ids'], set):
-                    self.logger.warning(f"Sprint {row['sprint_name']}: entity_ids is not a set!")
-                elif not row['entity_ids']:
-                    self.logger.warning(f"Sprint {row['sprint_name']}: empty entity_ids")
-                else:
-                    self.logger.info(f"Sprint {row['sprint_name']}: {len(row['entity_ids'])} tasks")
-        
-        self.sprints = sprints_df
+        """Load and process sprints data with better error handling"""
+        try:
+            # First try to load from tasks data
+            if not self.tasks.empty:
+                # Get unique areas
+                areas = self.tasks['area'].unique()
+                
+                # Generate synthetic sprints from task creation dates for each area
+                synthetic_sprints = []
+                
+                for area in areas:
+                    area_tasks = self.tasks[self.tasks['area'] == area]
+                    if area_tasks.empty:
+                        continue
+                    
+                    start_date = area_tasks['create_date'].min()
+                    end_date = area_tasks['create_date'].max()
+                    
+                    # Create 2-week sprints
+                    sprint_dates = pd.date_range(start=start_date, end=end_date, freq='2W')
+                    
+                    for i in range(len(sprint_dates) - 1):
+                        sprint_start = sprint_dates[i]
+                        sprint_end = sprint_dates[i + 1]
+                        
+                        # Get tasks created during this sprint for this area
+                        sprint_tasks = area_tasks[
+                            (area_tasks['create_date'] >= sprint_start) &
+                            (area_tasks['create_date'] < sprint_end)
+                        ]
+                        
+                        if not sprint_tasks.empty:
+                            sprint_name = f"Sprint {i+1} - {area} ({sprint_start.strftime('%Y.%m.%d')})"
+                            synthetic_sprints.append({
+                                'sprint_name': sprint_name,
+                                'sprint_start_date': sprint_start,
+                                'sprint_end_date': sprint_end,
+                                'entity_ids': sprint_tasks['entity_id'].tolist(),
+                                'area': area  # Add area to sprint data
+                            })
+                
+                self.sprints = pd.DataFrame(synthetic_sprints)
+                self.logger.info(f"Generated {len(synthetic_sprints)} synthetic sprints across {len(areas)} areas")
+                return
+            
+            # If no tasks data or synthetic sprint generation fails, try loading from file
+            sprints_path = os.path.join(self.data_dir, 'sprints.csv')
+            if os.path.exists(sprints_path):
+                # Try different delimiters
+                for delimiter in [',', ';', '\t']:
+                    try:
+                        self.sprints = pd.read_csv(sprints_path, delimiter=delimiter)
+                        if not self.sprints.empty:
+                            break
+                    except:
+                        continue
+            
+            # If still empty, create empty DataFrame with required columns
+            if self.sprints.empty:
+                self.sprints = pd.DataFrame(columns=[
+                    'sprint_name', 'sprint_start_date', 'sprint_end_date', 'entity_ids'
+                ])
+                self.logger.warning("Created empty sprints DataFrame with required columns")
+            
+            # Process dates if we have data
+            if not self.sprints.empty:
+                if 'sprint_start_date' in self.sprints.columns:
+                    self.sprints['sprint_start_date'] = pd.to_datetime(
+                        self.sprints['sprint_start_date'], errors='coerce'
+                    )
+                if 'sprint_end_date' in self.sprints.columns:
+                    self.sprints['sprint_end_date'] = pd.to_datetime(
+                        self.sprints['sprint_end_date'], errors='coerce'
+                    )
+                
+                # Convert entity_ids to list if needed
+                if 'entity_ids' in self.sprints.columns:
+                    self.sprints['entity_ids'] = self.sprints['entity_ids'].apply(
+                        lambda x: eval(x) if isinstance(x, str) else ([] if pd.isna(x) else x)
+                    )
+            
+            self.logger.info(f"Sprints DataFrame shape: {self.sprints.shape}")
+            self.logger.info(f"Sprints columns: {self.sprints.columns.tolist()}")
+            
+        except Exception as e:
+            self.logger.error(f"Error loading sprints data: {str(e)}")
+            # Create empty DataFrame with required columns
+            self.sprints = pd.DataFrame(columns=[
+                'sprint_name', 'sprint_start_date', 'sprint_end_date', 'entity_ids'
+            ])
 
     def _load_history(self):
         data_dir = os.path.join(os.path.dirname(__file__), 'data')
@@ -183,7 +244,7 @@ class DataLoader:
         history_df = pd.read_csv(history_path, sep=';', encoding='utf-8')
         
         if isinstance(history_df.index, pd.MultiIndex):
-            history_df = history_df.reset_index()
+            historyu_df = history_df.reset_index()
             column_names = history_df.iloc[0]
             history_df = history_df.iloc[1:].reset_index(drop=True)
             history_df.columns = column_names
