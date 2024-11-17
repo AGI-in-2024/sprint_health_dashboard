@@ -9,12 +9,18 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Slider } from "@/components/ui/slider"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Legend, ResponsiveContainer, LineChart, Line, AreaChart, Area } from 'recharts'
-import { AlertCircle, FileUp, Calendar as CalendarIcon, Layers, Info, ClipboardList, Clock, CheckCircle, XCircle } from 'lucide-react'
 import { Progress } from "@/components/ui/progress"
 import { cn } from "@/lib/utils"
-import { SprintCharts } from "@/components/SprintCharts"
-import { SprintTimeline } from "@/components/sprint-timeline"
+import { Calendar as CalendarIcon, Layers, Info, ClipboardList, Clock, CheckCircle, XCircle } from 'lucide-react'
+import { 
+  ResponsiveContainer, 
+  LineChart, 
+  Line, 
+  CartesianGrid, 
+  XAxis, 
+  YAxis,
+  Tooltip as RechartsTooltip
+} from 'recharts';
 import { motion } from "framer-motion"
 import { format } from "date-fns"
 import { ru } from "date-fns/locale"
@@ -22,28 +28,14 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Badge } from "@/components/ui/badge"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { useDropzone } from 'react-dropzone';
-
-// Import CustomTooltip as ChartTooltip to avoid naming conflict
-import { CustomTooltip as ChartTooltip } from './CustomTooltip'
+import { SprintCharts } from '@/components/SprintCharts'
+import { SprintTimeline } from '@/components/sprint-timeline'
+import { TooltipProps } from 'recharts'
 
 // API integration
-const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:8000/api';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000/api';
 
 // Types
-type Metrics = {
-  todo: number;
-  in_progress: number;
-  done: number;
-  removed: number;
-  backlog_changes: number;
-}
-
-type DailyChanges = {
-  day: number;
-  added: number;
-  removed: number;
-}
-
 type BackendMetrics = {
   todo: number;
   in_progress: number;
@@ -78,7 +70,11 @@ type SprintMetrics = {
   backlog_changes: number;
   health_percentage: number;
   blocked_tasks: number;
-  daily_changes: DailyChanges[];
+  daily_changes: Array<{
+    day: number;
+    added: number;
+    removed: number;
+  }>;
   todo_trend?: number;
   in_progress_trend?: number;
   done_trend?: number;
@@ -243,6 +239,22 @@ function FileUploadZone() {
   );
 }
 
+type ChartTooltipProps = {
+  active?: boolean;
+  payload?: Array<{
+    value: number;
+    name: string;
+    color: string;
+  }>;
+  label?: string | number;
+}
+
+type TooltipEntryType = {
+  name: string;
+  value: number;
+  color: string;
+}
+
 export function SprintHealthDashboardComponent() {
   // State
   const [sprints, setSprints] = useState<string[]>([]);
@@ -255,7 +267,7 @@ export function SprintHealthDashboardComponent() {
   const [sprintStartDate, setSprintStartDate] = useState<string>('');
   const [timeline, setTimeline] = useState<TimelineControl>({
     currentDay: 0,
-    totalDays: 0,
+    totalDays: 14,
     timeFramePercentage: 100
   });
 
@@ -271,12 +283,17 @@ export function SprintHealthDashboardComponent() {
           fetch(`${API_BASE_URL}/areas`)
         ]);
         
+        if (!sprintsRes.ok || !areasRes.ok) {
+          throw new Error('Failed to fetch data');
+        }
+        
         const sprintsData = await sprintsRes.json();
         const areasData = await areasRes.json();
         
         setSprints(sprintsData.sprints);
         setAreas(areasData.areas);
       } catch (err) {
+        console.error('Error fetching data:', err);
         setError('Failed to load sprints and areas data');
       }
     };
@@ -292,38 +309,63 @@ export function SprintHealthDashboardComponent() {
     return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
   }
 
+  // Add timeline handler
+  const handleTimelineChange = useCallback((percentage: number, day: number) => {
+    // Preserve current selections before timeline update
+    setTimeline(current => {
+      // Only update if we have valid selections
+      if (selectedSprints.length === 0 || selectedAreas.length === 0) {
+        return current;
+      }
+      
+      return {
+        ...current,
+        timeFramePercentage: percentage,
+        currentDay: day
+      };
+    });
+  }, [selectedSprints.length, selectedAreas.length]);
+
   // Fetch metrics when selection changes
   useEffect(() => {
     const fetchMetrics = async () => {
-      if (!selectedSprints.length || !selectedAreas.length) return;
+      // Guard against empty selections
+      if (!selectedSprints.length || !selectedAreas.length) {
+        setMetrics(null);
+        return;
+      }
+      
+      // Store current selections for comparison
+      const currentSprints = [...selectedSprints];
+      const currentAreas = [...selectedAreas];
       
       try {
         const queryParams = new URLSearchParams();
-        selectedSprints.forEach(sprint => {
+        currentSprints.forEach(sprint => {
           queryParams.append('selected_sprints[]', sprint);
         });
         
-        selectedAreas.forEach(area => {
+        currentAreas.forEach(area => {
           queryParams.append('selected_areas[]', area);
         });
         
-        // Ensure we always send a valid number between 0 and 100
-        const safeTimeFrame = isNaN(timeline.timeFramePercentage) ? 
-          100 : 
-          Math.min(100, Math.max(0, timeline.timeFramePercentage));
-        
-        queryParams.append('time_frame', safeTimeFrame.toString());
-        
-        console.debug('Fetching metrics with params:', queryParams.toString());
+        queryParams.append('time_frame', timeline.timeFramePercentage.toString());
         
         const response = await fetch(`${API_BASE_URL}/metrics?${queryParams}`);
-        const data = await response.json();
         
-        if (!response.ok) {
-          throw new Error(data.detail || 'Failed to fetch metrics');
+        // Verify selections haven't changed during fetch
+        if (!arraysEqual(currentSprints, selectedSprints) || 
+            !arraysEqual(currentAreas, selectedAreas)) {
+          return; // Skip update if selections changed
         }
         
-        // Validate backend response
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.detail || 'Failed to fetch metrics');
+        }
+        
+        const data = await response.json();
+        
         if (!isValidBackendMetrics(data)) {
           throw new Error('Invalid metrics data received from server');
         }
@@ -340,7 +382,13 @@ export function SprintHealthDashboardComponent() {
     };
     
     fetchMetrics();
-  }, [selectedSprints, selectedAreas, timeFrame, timeline]);
+  }, [selectedSprints, selectedAreas, timeline.timeFramePercentage, sprintStartDate]);
+
+  // Helper function for array comparison
+  const arraysEqual = (a: string[], b: string[]) => {
+    if (a.length !== b.length) return false;
+    return a.every((val, index) => val === b[index]);
+  };
 
   // Helper function to determine sprint period
   const calculateSprintPeriod = useCallback((selectedSprints: string[]) => {
@@ -391,15 +439,16 @@ export function SprintHealthDashboardComponent() {
       const period = calculateSprintPeriod(newSelection);
       setSprintPeriod(period);
 
-      // Update timeline based on period
       if (period) {
-        const totalDays = Math.ceil((period.endDate.getTime() - period.startDate.getTime()) 
-          / (1000 * 60 * 60 * 24));
+        const totalDays = Math.ceil(
+          (period.endDate.getTime() - period.startDate.getTime()) / (1000 * 60 * 60 * 24)
+        );
         
+        // Update timeline with new period information
         setTimeline({
-          currentDay: totalDays,
-          totalDays,
-          timeFramePercentage: 100
+          currentDay: totalDays, // Start at the end
+          totalDays: totalDays,
+          timeFramePercentage: 100 // Show full timeline initially
         });
 
         // Set sprint start date for single sprint view
@@ -410,7 +459,7 @@ export function SprintHealthDashboardComponent() {
         // Reset timeline when no sprints selected
         setTimeline({
           currentDay: 0,
-          totalDays: 14,
+          totalDays: 14, // Default sprint length
           timeFramePercentage: 100
         });
       }
@@ -472,7 +521,6 @@ export function SprintHealthDashboardComponent() {
           <TabsList>
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="details">Detailed Analysis</TabsTrigger>
-            <TabsTrigger value="timeline">Timeline</TabsTrigger>
           </TabsList>
 
           <TabsContent value="overview" className="space-y-4">
@@ -482,7 +530,7 @@ export function SprintHealthDashboardComponent() {
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
-                    <CalendarIcon className="h-4 w-4" />
+                    <CalendarIcon />
                     Sprint Selection
                   </CardTitle>
                 </CardHeader>
@@ -525,7 +573,7 @@ export function SprintHealthDashboardComponent() {
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
-                    <Layers className="h-4 w-4" />
+                    <Layers />
                     Area Selection
                   </CardTitle>
                 </CardHeader>
@@ -575,6 +623,18 @@ export function SprintHealthDashboardComponent() {
               </Card>
             </div>
 
+            {/* Add Timeline Component here, right after selection controls */}
+            {metrics && sprintPeriod && (
+              <SprintTimeline
+                currentDay={timeline.currentDay}
+                totalDays={timeline.totalDays}
+                timeFramePercentage={timeline.timeFramePercentage}
+                backlogChanges={metrics.backlog_changes}
+                selectedSprints={selectedSprints}
+                onTimelineChange={handleTimelineChange}
+              />
+            )}
+
             {/* Health Score Card */}
             {metrics && (
               <motion.div
@@ -589,7 +649,7 @@ export function SprintHealthDashboardComponent() {
                       <TooltipProvider>
                         <Tooltip>
                           <TooltipTrigger>
-                            <Info className="h-4 w-4" />
+                            <Info />
                           </TooltipTrigger>
                           <TooltipContent>
                             <p>Overall health score based on multiple metrics</p>
@@ -635,31 +695,35 @@ export function SprintHealthDashboardComponent() {
               </motion.div>
             )}
 
-            {/* Key Metrics Grid */}
+            {/* Key Metrics Grid - Update to use timeline data */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <StatusCard 
                 title="To Do"
                 value={metrics?.todo}
-                icon={<ClipboardList className="h-4 w-4" />}
+                icon={<ClipboardList />}
                 trend={metrics?.todo_trend}
+                timeframe={timeline.timeFramePercentage}
               />
               <StatusCard 
                 title="In Progress"
                 value={metrics?.in_progress}
-                icon={<Clock className="h-4 w-4" />}
+                icon={<Clock />}
                 trend={metrics?.in_progress_trend}
+                timeframe={timeline.timeFramePercentage}
               />
               <StatusCard 
                 title="Done"
                 value={metrics?.done}
-                icon={<CheckCircle className="h-4 w-4" />}
+                icon={<CheckCircle />}
                 trend={metrics?.done_trend}
+                timeframe={timeline.timeFramePercentage}
               />
               <StatusCard 
                 title="Removed"
                 value={metrics?.removed}
-                icon={<XCircle className="h-4 w-4" />}
+                icon={<XCircle />}
                 trend={metrics?.removed_trend}
+                timeframe={timeline.timeFramePercentage}
               />
             </div>
 
@@ -699,210 +763,28 @@ export function SprintHealthDashboardComponent() {
 
           <TabsContent value="details" className="space-y-4">
             {/* Detailed Analysis Content */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {/* Task Distribution Chart */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>Task Distribution</CardTitle>
-                </CardHeader>
-                <CardContent className="h-[300px]">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={[
-                      { name: 'To Do', value: metrics?.todo || 0 },
-                      { name: 'In Progress', value: metrics?.in_progress || 0 },
-                      { name: 'Done', value: metrics?.done || 0 },
-                      { name: 'Removed', value: metrics?.removed || 0 }
-                    ]}>
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="name" />
-                      <YAxis />
-                      <Tooltip content={({ active, payload, label }) => {
-                        if (active && payload && payload.length) {
-                          return (
-                            <div className="bg-white p-2 border rounded shadow-lg">
-                              <p className="font-bold">{label}</p>
-                              <p>{`Value: ${payload[0].value}`}</p>
-                            </div>
-                          );
-                        }
-                        return null;
-                      }} />
-                      <Bar dataKey="value" fill="#8884d8" />
-                    </BarChart>
-                  </ResponsiveContainer>
-                </CardContent>
-              </Card>
-
-              {/* Backlog Changes Chart */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>Backlog Changes Over Time</CardTitle>
-                </CardHeader>
-                <CardContent className="h-[300px]">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <LineChart data={metrics?.daily_changes || []}>
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="day" />
-                      <YAxis />
-                      <Tooltip content={({ active, payload, label }) => {
-                        if (active && payload && payload.length) {
-                          return (
-                            <div className="bg-white p-2 border rounded shadow-lg">
-                              <p className="font-bold">Day {label}</p>
-                              {payload.map((entry, index) => (
-                                <p key={index} style={{ color: entry.color }}>
-                                  {entry.name}: {entry.value}
-                                </p>
-                              ))}
-                            </div>
-                          );
-                        }
-                        return null;
-                      }} />
-                      <Line type="monotone" dataKey="added" stroke="#4CAF50" name="Added" />
-                      <Line type="monotone" dataKey="removed" stroke="#f44336" name="Removed" />
-                    </LineChart>
-                  </ResponsiveContainer>
-                </CardContent>
-              </Card>
-
-              {/* Velocity Trend */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>Velocity Trend</CardTitle>
-                </CardHeader>
-                <CardContent className="h-[300px]">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <AreaChart data={metrics?.daily_changes || []}>
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="day" />
-                      <YAxis />
-                      <Tooltip content={({ active, payload, label }) => {
-                        if (active && payload && payload.length) {
-                          return (
-                            <div className="bg-white p-2 border rounded shadow-lg">
-                              <p className="font-bold">Day {label}</p>
-                              <p>{`Completed Tasks: ${payload[0]?.value || 0}`}</p>
-                            </div>
-                          );
-                        }
-                        return null;
-                      }} />
-                      <Area 
-                        type="monotone" 
-                        dataKey="done" 
-                        stroke="#2196F3" 
-                        fill="#2196F3" 
-                        fillOpacity={0.3}
-                        name="Completed Tasks"
-                      />
-                    </AreaChart>
-                  </ResponsiveContainer>
-                </CardContent>
-              </Card>
-
-              {/* Blocked Tasks Analysis */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>Blocked Tasks Analysis</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between">
-                      <span>Currently Blocked Tasks</span>
-                      <Badge variant={metrics?.blocked_tasks ? "destructive" : "success"}>
-                        {metrics?.blocked_tasks || 0}
-                      </Badge>
-                    </div>
-                    <Progress 
-                      value={metrics?.blocked_tasks 
-                        ? (metrics.blocked_tasks / (metrics.todo + metrics.in_progress)) * 100 
-                        : 0
-                      } 
-                      className="h-2"
-                    />
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Add Task Changes Chart */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>Daily Task Changes</CardTitle>
-                </CardHeader>
-                <CardContent className="h-[300px]">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={metrics?.daily_changes || []}>
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="day" />
-                      <YAxis />
-                      <Tooltip content={({ active, payload, label }) => {
-                        if (active && payload && payload.length) {
-                          return (
-                            <div className="bg-white p-2 border rounded shadow-lg">
-                              <p className="font-bold">Day {label}</p>
-                              <p className="text-green-500">Added: {payload[0].value} tasks</p>
-                              <p className="text-red-500">Removed: {Math.abs(payload[1].value)} tasks</p>
-                            </div>
-                          );
-                        }
-                        return null;
-                      }} />
-                      <Bar dataKey="added" fill="#4CAF50" name="Added Tasks" />
-                      <Bar dataKey="removed" fill="#f44336" name="Removed Tasks" />
-                    </BarChart>
-                  </ResponsiveContainer>
-                </CardContent>
-              </Card>
-            </div>
-          </TabsContent>
-
-          <TabsContent value="timeline" className="space-y-4">
-            {/* Timeline Content */}
+            <SprintCharts metrics={metrics} />
+            
+            {/* Blocked Tasks Analysis */}
             <Card>
               <CardHeader>
-                <CardTitle>Sprint Timeline</CardTitle>
+                <CardTitle>Blocked Tasks Analysis</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="space-y-8">
-                  {/* Sprint Progress */}
-                  <div>
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-sm font-medium">Sprint Progress</span>
-                      <span className="text-sm text-muted-foreground">
-                        Day {timeline.currentDay} of {timeline.totalDays}
-                      </span>
-                    </div>
-                    <Progress 
-                      value={(timeline.currentDay / timeline.totalDays) * 100} 
-                      className="h-2"
-                    />
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <span>Currently Blocked Tasks</span>
+                    <Badge variant={metrics?.blocked_tasks ? "destructive" : "success"}>
+                      {metrics?.blocked_tasks || 0}
+                    </Badge>
                   </div>
-
-                  {/* Timeline Events */}
-                  <div className="space-y-4">
-                    {metrics?.daily_changes?.map((change, index) => (
-                      <div key={index} className="flex items-start space-x-4">
-                        <div className="min-w-[100px] text-sm text-muted-foreground">
-                          Day {change.day}
-                        </div>
-                        <div>
-                          {change.added > 0 && (
-                            <div className="flex items-center text-green-500">
-                              <FileUp className="h-4 w-4 mr-2" />
-                              Added {change.added} tasks
-                            </div>
-                          )}
-                          {change.removed < 0 && (
-                            <div className="flex items-center text-red-500">
-                              <XCircle className="h-4 w-4 mr-2" />
-                              Removed {Math.abs(change.removed)} tasks
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
+                  <Progress 
+                    value={metrics?.blocked_tasks 
+                      ? (metrics.blocked_tasks / (metrics.todo + metrics.in_progress)) * 100 
+                      : 0
+                    } 
+                    className="h-2"
+                  />
                 </div>
               </CardContent>
             </Card>
@@ -913,12 +795,19 @@ export function SprintHealthDashboardComponent() {
   );
 }
 
-function StatusCard({ title, value, icon, trend }: {
+function StatusCard({ title, value, icon, trend, timeframe }: {
   title: string;
   value?: number;
   icon: React.ReactNode;
   trend?: number;
+  timeframe?: number;
 }) {
+  // Calculate the value based on timeframe percentage
+  const adjustedValue = useMemo(() => {
+    if (value === undefined || timeframe === undefined) return value;
+    return value * (timeframe / 100);
+  }, [value, timeframe]);
+
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -929,7 +818,7 @@ function StatusCard({ title, value, icon, trend }: {
       </CardHeader>
       <CardContent>
         <div className="text-2xl font-bold">
-          {value?.toFixed(1) ?? <div className="h-6 w-12 bg-gray-200 animate-pulse rounded" />}
+          {adjustedValue?.toFixed(1) ?? <div className="h-6 w-12 bg-gray-200 animate-pulse rounded" />}
         </div>
         {trend !== undefined && (
           <p className={cn(

@@ -1,139 +1,159 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  ResponsiveContainer,
-  LineChart,
-  BarChart,
-  AreaChart,
-  CartesianGrid,
-  XAxis,
-  YAxis,
-  Tooltip,
-  Legend,
-  Line,
-  Bar,
+import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
+import { 
+  BarChart, 
+  Bar, 
+  XAxis, 
+  YAxis, 
+  CartesianGrid, 
+  Tooltip as RechartsTooltip,
+  LineChart, 
+  Line, 
+  AreaChart, 
   Area,
+  ResponsiveContainer,
+  TooltipProps
 } from 'recharts';
-import { CustomTooltip } from "@/components/CustomTooltip"; // Ensure this path is correct
-import { cn } from "@/lib/utils";
 
-// Define the props type
-type SprintMetrics = {
-  todo: number;
-  in_progress: number;
-  done: number;
-  removed: number;
-  backlog_changes: number;
-  health_percentage: number;
-  blocked_tasks: number;
-  daily_changes: DailyChanges[];
-};
+type ChartTooltipProps = {
+  active?: boolean;
+  payload?: Array<{
+    value: number | undefined;
+    name: string;
+    color: string;
+    dataKey: string;
+    payload: {
+      [key: string]: number;
+    };
+  }>;
+  label?: string | number;
+}
 
-type DailyChanges = {
-  day: number;
-  added: number;
-  removed: number;
-};
+type ChartProps = {
+  metrics: {
+    todo?: number;
+    in_progress?: number;
+    done?: number;
+    removed?: number;
+    blocked_tasks?: number;
+    daily_changes?: Array<{
+      day: number;
+      added: number;
+      removed: number;
+      done?: number;
+      in_progress?: number;
+    }>;
+  } | null;
+}
 
-type SprintChartsProps = {
-  metrics: SprintMetrics;
-};
+export function SprintCharts({ metrics }: ChartProps) {
+  if (!metrics) return null;
 
-export const SprintCharts: React.FC<SprintChartsProps> = ({ metrics }) => {
+  const renderTooltip = ({ active, payload, label }: TooltipProps<number, string>) => {
+    if (active && payload && payload.length) {
+      return (
+        <div className="bg-white p-2 border rounded shadow-lg">
+          <p className="font-bold">{label}</p>
+          {payload.map((entry) => (
+            <p key={entry.dataKey}>
+              {entry.name}: {entry.value}
+            </p>
+          ))}
+        </div>
+      );
+    }
+    return null;
+  };
+
   return (
-    <>
-      {/* Burndown Chart */}
-      <Card className="mb-4 shadow-lg rounded-lg">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      {/* Task Distribution Chart */}
+      <Card>
         <CardHeader>
-          <CardTitle>Burndown Chart</CardTitle>
+          <CardTitle>Task Distribution</CardTitle>
         </CardHeader>
-        <CardContent className="min-h-[400px]">
-          <ResponsiveContainer width="100%" height={350}>
-            <LineChart
-              data={metrics.daily_changes}
-              margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
-            >
+        <CardContent className="h-[300px]">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart data={[
+              { name: 'To Do', value: metrics?.todo || 0 },
+              { name: 'In Progress', value: metrics?.in_progress || 0 },
+              { name: 'Done', value: metrics?.done || 0 },
+              { name: 'Removed', value: metrics?.removed || 0 }
+            ]}>
               <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="day" label={{ value: 'Day', position: 'insideBottomRight', offset: 0 }} />
-              <YAxis label={{ value: 'Hours', angle: -90, position: 'insideLeft' }} />
-              <Tooltip content={<CustomTooltip />} />
-              <Legend />
-              <Line type="monotone" dataKey="added" stroke="#8884d8" name="Added" />
-              <Line type="monotone" dataKey="removed" stroke="#82ca9d" name="Removed" />
-            </LineChart>
-          </ResponsiveContainer>
-        </CardContent>
-      </Card>
-
-      {/* Velocity Chart */}
-      <Card className="mb-4 shadow-lg rounded-lg">
-        <CardHeader>
-          <CardTitle>Velocity Chart</CardTitle>
-        </CardHeader>
-        <CardContent className="min-h-[400px]">
-          <ResponsiveContainer width="100%" height={350}>
-            <BarChart
-              data={metrics.daily_changes}
-              margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
-            >
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="day" label={{ value: 'Day', position: 'insideBottomRight', offset: 0 }} />
-              <YAxis label={{ value: 'Hours', angle: -90, position: 'insideLeft' }} />
-              <Tooltip content={<CustomTooltip />} />
-              <Legend />
-              <Bar dataKey="added" fill="#8884d8" name="Added" />
-              <Bar dataKey="removed" fill="#82ca9d" name="Removed" />
+              <XAxis dataKey="name" />
+              <YAxis />
+              <RechartsTooltip content={renderTooltip} />
+              <Bar dataKey="value" fill="#8884d8" />
             </BarChart>
           </ResponsiveContainer>
         </CardContent>
       </Card>
 
-      {/* Cumulative Flow Diagram */}
-      <Card className="mb-4 shadow-lg rounded-lg">
+      {/* Backlog Changes Chart */}
+      <Card>
         <CardHeader>
-          <CardTitle>Cumulative Flow Diagram</CardTitle>
+          <CardTitle>Backlog Changes Over Time</CardTitle>
         </CardHeader>
-        <CardContent className="min-h-[400px]">
-          <ResponsiveContainer width="100%" height={350}>
-            <AreaChart
-              data={metrics.daily_changes}
-              margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
-            >
-              <defs>
-                <linearGradient id="colorAdded" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#8884d8" stopOpacity={0.8} />
-                  <stop offset="95%" stopColor="#8884d8" stopOpacity={0} />
-                </linearGradient>
-                <linearGradient id="colorRemoved" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#82ca9d" stopOpacity={0.8} />
-                  <stop offset="95%" stopColor="#82ca9d" stopOpacity={0} />
-                </linearGradient>
-              </defs>
+        <CardContent className="h-[300px]">
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart data={metrics?.daily_changes || []}>
               <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="day" label={{ value: 'Day', position: 'insideBottomRight', offset: 0 }} />
-              <YAxis label={{ value: 'Hours', angle: -90, position: 'insideLeft' }} />
-              <Tooltip content={<CustomTooltip />} />
-              <Legend />
-              <Area
-                type="monotone"
-                dataKey="added"
-                stroke="#8884d8"
-                fillOpacity={1}
-                fill="url(#colorAdded)"
-                name="Added"
-              />
-              <Area
-                type="monotone"
-                dataKey="removed"
-                stroke="#82ca9d"
-                fillOpacity={1}
-                fill="url(#colorRemoved)"
-                name="Removed"
+              <XAxis dataKey="day" />
+              <YAxis />
+              <RechartsTooltip content={renderTooltip} />
+              <Line type="monotone" dataKey="added" stroke="#4CAF50" name="Added" />
+              <Line type="monotone" dataKey="removed" stroke="#f44336" name="Removed" />
+            </LineChart>
+          </ResponsiveContainer>
+        </CardContent>
+      </Card>
+
+      {/* Velocity Trend */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Velocity Trend</CardTitle>
+        </CardHeader>
+        <CardContent className="h-[300px]">
+          <ResponsiveContainer width="100%" height="100%">
+            <AreaChart data={metrics?.daily_changes || []}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="day" />
+              <YAxis />
+              <RechartsTooltip content={renderTooltip} />
+              <Area 
+                type="monotone" 
+                dataKey="done" 
+                stroke="#2196F3" 
+                fill="#2196F3" 
+                fillOpacity={0.3}
+                name="Completed Tasks"
               />
             </AreaChart>
           </ResponsiveContainer>
         </CardContent>
       </Card>
-    </>
+
+      {/* Daily Task Changes Chart */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Daily Task Changes</CardTitle>
+        </CardHeader>
+        <CardContent className="h-[300px]">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart data={metrics?.daily_changes || []}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="day" />
+              <YAxis />
+              <RechartsTooltip content={renderTooltip} />
+              <Bar dataKey="added" fill="#4CAF50" name="Added Tasks" />
+              <Bar dataKey="removed" fill="#f44336" name="Removed Tasks" />
+            </BarChart>
+          </ResponsiveContainer>
+        </CardContent>
+      </Card>
+    </div>
   );
-}; 
+} 

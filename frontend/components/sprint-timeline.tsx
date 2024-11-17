@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
@@ -11,7 +11,7 @@ interface SprintTimelineProps {
   timeFramePercentage: number;
   backlogChanges?: number;
   selectedSprints: string[];
-  onTimelineChange: (percentage: number) => void;
+  onTimelineChange: (percentage: number, day: number) => void;
 }
 
 type TimeRange = 'sprint' | 'quarter' | 'halfYear' | 'year';
@@ -32,6 +32,24 @@ export function SprintTimeline({
   selectedSprints,
   onTimelineChange
 }: SprintTimelineProps) {
+  // Add validation for timeline updates
+  const handleTimelineUpdate = useCallback((percentage: number, day: number) => {
+    // Validate inputs
+    if (isNaN(percentage) || isNaN(day)) {
+      console.warn('Invalid timeline update values:', { percentage, day });
+      return;
+    }
+    
+    // Ensure percentage is within bounds
+    const validPercentage = Math.max(0, Math.min(100, percentage));
+    
+    // Ensure day is within bounds
+    const validDay = Math.max(0, Math.min(totalDays, day));
+    
+    // Only trigger update if values are valid
+    onTimelineChange(validPercentage, validDay);
+  }, [totalDays, onTimelineChange]);
+
   // Format day display to handle NaN
   const displayDay = isNaN(currentDay) ? 0 : currentDay;
   const displayTotal = isNaN(totalDays) ? 0 : totalDays;
@@ -109,6 +127,15 @@ export function SprintTimeline({
 
   const { milestones, type } = timelineInfo;
 
+  // Update click handlers to use the new safe update function
+  const handleMilestoneClick = (milestone: Milestone) => {
+    const percentage = (milestone.day / totalDays) * 100;
+    handleTimelineUpdate(
+      isNaN(percentage) ? 100 : percentage,
+      milestone.day
+    );
+  };
+
   return (
     <Card className="mb-4">
       <CardHeader>
@@ -171,10 +198,7 @@ export function SprintTimeline({
                   key={milestone.id}
                   variant={currentDay === milestone.day ? "default" : "outline"}
                   size="sm"
-                  onClick={() => {
-                    const percentage = (milestone.day / timelineInfo.totalDays) * 100;
-                    onTimelineChange(isNaN(percentage) ? 100 : percentage);
-                  }}
+                  onClick={() => handleMilestoneClick(milestone)}
                 >
                   {milestone.label}
                 </Button>
@@ -184,7 +208,7 @@ export function SprintTimeline({
               <div className="flex gap-2">
                 <Button
                   variant="outline"
-                  onClick={() => onTimelineChange(0)}
+                  onClick={() => handleTimelineUpdate(0, 0)}
                 >
                   Начало периода
                 </Button>
@@ -195,7 +219,8 @@ export function SprintTimeline({
                     size="sm"
                     onClick={() => {
                       const percentage = (index / (sprintDates.length - 1)) * 100;
-                      onTimelineChange(percentage);
+                      const day = Math.floor((percentage / 100) * totalDays);
+                      handleTimelineUpdate(percentage, day);
                     }}
                   >
                     Спринт {index + 1}
@@ -203,7 +228,7 @@ export function SprintTimeline({
                 ))}
                 <Button
                   variant="outline"
-                  onClick={() => onTimelineChange(100)}
+                  onClick={() => handleTimelineUpdate(100, totalDays)}
                 >
                   Конец периода
                 </Button>
