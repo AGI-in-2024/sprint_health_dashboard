@@ -153,6 +153,127 @@ async def get_metrics(
             detail="Internal server error while calculating metrics"
         )
 
+@app.get("/api/sprint-health")
+async def get_sprint_health(
+    selected_sprints: Optional[List[str]] = Query(None, alias="selected_sprints[]"),
+    selected_areas: Optional[List[str]] = Query(None, alias="selected_areas[]"),
+    time_frame: Optional[int] = Query(100, ge=0, le=100)
+):
+    """Get detailed sprint health metrics with breakdown"""
+    if not data_loader.is_loaded:
+        raise HTTPException(
+            status_code=503,
+            detail="Service unavailable - data not loaded"
+        )
+    
+    # Validate inputs
+    if not selected_sprints:
+        raise HTTPException(
+            status_code=422,
+            detail="No sprints selected"
+        )
+    
+    if not selected_areas:
+        raise HTTPException(
+            status_code=422,
+            detail="No areas selected"
+        )
+    
+    try:
+        # Get base metrics first
+        metrics = calculate_metrics(
+            data_loader.tasks,
+            data_loader.sprints,
+            data_loader.history,
+            selected_sprints,
+            selected_areas,
+            time_frame
+        )
+        
+        # Extract sprint health data
+        sprint_health = metrics.get('sprint_health', {})
+        
+        return {
+            'health_score': sprint_health.get('score', 0),
+            'details': sprint_health.get('details', {}),
+            'metrics_snapshot': sprint_health.get('metrics_snapshot', {}),
+            'category_scores': {
+                'delivery': {
+                    'score': sprint_health.get('metrics_snapshot', {}).get('delivery_score', 0),
+                    'weight': '25%',
+                    'description': 'Measures sprint completion rate and timing'
+                },
+                'stability': {
+                    'score': sprint_health.get('metrics_snapshot', {}).get('stability_score', 0),
+                    'weight': '20%',
+                    'description': 'Evaluates sprint scope and backlog changes'
+                },
+                'flow': {
+                    'score': sprint_health.get('metrics_snapshot', {}).get('flow_score', 0),
+                    'weight': '20%',
+                    'description': 'Assesses work distribution and blocked tasks'
+                },
+                'quality': {
+                    'score': sprint_health.get('metrics_snapshot', {}).get('quality_score', 0),
+                    'weight': '20%',
+                    'description': 'Measures rework and technical debt management'
+                },
+                'team_load': {
+                    'score': sprint_health.get('metrics_snapshot', {}).get('team_load_score', 0),
+                    'weight': '15%',
+                    'description': 'Evaluates team workload distribution'
+                }
+            },
+            'key_metrics': {
+                'completion_rate': {
+                    'value': sprint_health.get('metrics_snapshot', {}).get('completion_rate', 0),
+                    'unit': '%',
+                    'description': 'Percentage of completed tasks'
+                },
+                'scope_changes': {
+                    'value': sprint_health.get('metrics_snapshot', {}).get('scope_change_ratio', 0),
+                    'unit': '%',
+                    'description': 'Percentage of removed tasks'
+                },
+                'blocked_tasks': {
+                    'value': sprint_health.get('metrics_snapshot', {}).get('blocked_ratio', 0),
+                    'unit': '%',
+                    'description': 'Percentage of blocked tasks'
+                },
+                'rework': {
+                    'value': sprint_health.get('metrics_snapshot', {}).get('rework_count', 0),
+                    'unit': 'tasks',
+                    'description': 'Number of tasks requiring rework'
+                },
+                'tech_debt': {
+                    'value': sprint_health.get('metrics_snapshot', {}).get('tech_debt_ratio', 0),
+                    'unit': '%',
+                    'description': 'Percentage of technical debt tasks'
+                },
+                'flow_evenness': {
+                    'value': sprint_health.get('metrics_snapshot', {}).get('evenness_score', 0),
+                    'unit': '%',
+                    'description': 'How evenly work progresses through the sprint'
+                },
+                'last_day_completion': {
+                    'value': sprint_health.get('metrics_snapshot', {}).get('last_day_completion_percentage', 0),
+                    'unit': '%',
+                    'description': 'Percentage of tasks completed on last day'
+                }
+            }
+        }
+    except ValueError as e:
+        raise HTTPException(
+            status_code=422,
+            detail=str(e)
+        )
+    except Exception as e:
+        logger.error(f"Error calculating sprint health: {str(e)}")
+        raise HTTPException(
+            status_code=500,
+            detail="Internal server error while calculating sprint health"
+        )
+
 def handle_shutdown(signal_number, frame):
     """Handle graceful shutdown"""
     logger.info("Shutting down gracefully...")

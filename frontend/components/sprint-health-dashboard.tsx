@@ -59,7 +59,15 @@ type BackendMetrics = {
     removed_tasks: number;
     blocked_tasks: number;
   }>;
-  status_changes_uniformity?: number;
+  status_transitions?: {
+    last_day_completion_percentage: number;
+    daily_distribution: Record<string, any>;
+    transition_evenness: number;
+  };
+  health_details: HealthDetails;
+  health_metrics: HealthMetricsSnapshot;
+  category_scores?: SprintHealthResponse['category_scores'];
+  key_metrics?: SprintHealthResponse['key_metrics'];
 }
 
 type SprintMetrics = {
@@ -68,7 +76,7 @@ type SprintMetrics = {
   done: number;
   removed: number;
   backlog_changes: number;
-  health_percentage: number;
+  health_score: number;
   blocked_tasks: number;
   daily_changes: Array<{
     day: number;
@@ -80,11 +88,11 @@ type SprintMetrics = {
   done_trend?: number;
   removed_trend?: number;
   status_changes_uniformity?: number;
+  health_details: HealthDetails;
 }
 
 // Add transformation function
 function transformBackendMetrics(data: BackendMetrics, sprintStartDate: string): SprintMetrics {
-  // Use daily_metrics if available, otherwise fallback to current logic
   const daily_changes = data.daily_metrics 
     ? data.daily_metrics.map(metric => {
         const date = new Date(metric.date);
@@ -94,7 +102,7 @@ function transformBackendMetrics(data: BackendMetrics, sprintStartDate: string):
         return {
           day,
           added: metric.added_tasks,
-          removed: -metric.removed_tasks // Keep negative for removed tasks
+          removed: -metric.removed_tasks
         };
       })
     : transformLegacyDailyChanges(data, sprintStartDate);
@@ -105,9 +113,15 @@ function transformBackendMetrics(data: BackendMetrics, sprintStartDate: string):
     done: data.status_distribution?.done ?? data.done,
     removed: data.status_distribution?.removed ?? data.removed,
     backlog_changes: data.backlog_changes,
-    health_percentage: data.health_score,
+    health_score: data.health_score ?? 0,
     blocked_tasks: data.blocked_tasks,
-    daily_changes
+    daily_changes,
+    todo_trend: 0,
+    in_progress_trend: 0,
+    done_trend: 0,
+    removed_trend: 0,
+    status_changes_uniformity: data.status_transitions?.transition_evenness,
+    health_details: data.health_details
   };
 }
 
@@ -180,6 +194,32 @@ type TaskMetrics = {
   count: number;
 }
 
+// Add new types for health details
+type HealthDetails = {
+  delivery_score: number;
+  stability_score: number;
+  flow_score: number;
+  quality_score: number;
+  team_load_score: number;
+  completion_rate: number;
+  blocked_ratio: number;
+  last_day_completion: number;
+}
+
+type HealthMetricsSnapshot = {
+  completion_score: number;
+  stability_score: number;
+  distribution_score: number;
+  blocked_score: number;
+  quality_score: number;
+  todo_percentage: number;
+  in_progress_percentage: number;
+  blocked_percentage: number;
+  rework_count: number;
+  evenness_score: number;
+  last_day_completion_percentage: number;
+}
+
 // Add new component for health indicators
 function HealthIndicator({ value, threshold, label }: { 
   value: number; 
@@ -231,9 +271,9 @@ function FileUploadZone() {
     >
       <input {...getInputProps()} />
       {isDragActive ? (
-        <p>Drop the files here ...</p>
+        <p>Перетащите файлы сюда ...</p>
       ) : (
-        <p>Drag 'n' drop files here, or click to select files</p>
+        <p>Перетащите файлы сюда или нажмите для выбора</p>
       )}
     </div>
   );
@@ -255,6 +295,269 @@ type TooltipEntryType = {
   color: string;
 }
 
+// Add new component for detailed health breakdown
+function HealthScoreBreakdown({ 
+  details, 
+  metrics 
+}: { 
+  details: HealthDetails; 
+  metrics: HealthMetricsSnapshot;
+}) {
+  return (
+    <div className="space-y-4">
+      {/* Scores Section */}
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+        <ScoreCard
+          title="Выполнение"
+          score={metrics.completion_score}
+          weight={30}
+        />
+        <ScoreCard
+          title="Стабильность"
+          score={metrics.stability_score}
+          weight={25}
+        />
+        <ScoreCard
+          title="Распределение"
+          score={metrics.distribution_score}
+          weight={20}
+        />
+        <ScoreCard
+          title="Блокировки"
+          score={metrics.blocked_score}
+          weight={15}
+        />
+        <ScoreCard
+          title="Качество"
+          score={metrics.quality_score}
+          weight={10}
+        />
+      </div>
+
+      {/* Penalties and Bonuses */}
+      <div className="space-y-2">
+        <h4 className="font-semibold">Штрафы и бонусы</h4>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* Penalties */}
+          <div className="space-y-2">
+            {Object.entries(details)
+              .filter(([key]) => key.includes('penalty'))
+              .map(([key, value]) => (
+                <div key={key} className="flex justify-between items-center text-red-500">
+                  <span>{formatPenaltyName(key)}</span>
+                  <span>-{value.toFixed(1)}</span>
+                </div>
+              ))}
+          </div>
+          {/* Bonuses */}
+          <div className="space-y-2">
+            {Object.entries(details)
+              .filter(([key]) => key.includes('bonus'))
+              .map(([key, value]) => (
+                <div key={key} className="flex justify-between items-center text-green-500">
+                  <span>{formatBonusName(key)}</span>
+                  <span>+{value.toFixed(1)}</span>
+                </div>
+              ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Key Metrics */}
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+        <MetricCard
+          label="Задачи к выполнению"
+          value={`${metrics.todo_percentage.toFixed(1)}%`}
+          status={metrics.todo_percentage <= 20 ? 'success' : 'warning'}
+        />
+        <MetricCard
+          label="Задачи в работе"
+          value={`${metrics.in_progress_percentage.toFixed(1)}%`}
+          status={metrics.in_progress_percentage <= 30 ? 'success' : 'warning'}
+        />
+        <MetricCard
+          label="Заблокированные задачи"
+          value={`${metrics.blocked_percentage.toFixed(1)}%`}
+          status={metrics.blocked_percentage <= 10 ? 'success' : 'destructive'}
+        />
+        <MetricCard
+          label="Равномерность выполнения"
+          value={`${metrics.evenness_score.toFixed(1)}%`}
+          status={metrics.evenness_score >= 70 ? 'success' : 'warning'}
+        />
+        <MetricCard
+          label="Завершение в последний день"
+          value={`${metrics.last_day_completion_percentage.toFixed(1)}%`}
+          status={metrics.last_day_completion_percentage <= 20 ? 'success' : 'destructive'}
+        />
+        <MetricCard
+          label="Количество доработок"
+          value={metrics.rework_count.toString()}
+          status={metrics.rework_count <= 2 ? 'success' : 'warning'}
+        />
+      </div>
+    </div>
+  );
+}
+
+// Helper components
+function ScoreCard({ title, score, weight }: { title: string; score: number; weight: number }) {
+  return (
+    <Card>
+      <CardHeader className="pb-2">
+        <CardTitle className="text-sm font-medium">{title}</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="text-2xl font-bold">
+          {score.toFixed(1)}
+        </div>
+        <p className="text-xs text-muted-foreground">
+          Вес: {weight}%
+        </p>
+      </CardContent>
+    </Card>
+  );
+}
+
+function MetricCard({ 
+  label, 
+  value, 
+  status 
+}: { 
+  label: string; 
+  value: string; 
+  status: 'success' | 'warning' | 'destructive' 
+}) {
+  return (
+    <div className="flex justify-between items-center p-2 border rounded">
+      <span className="text-sm">{label}</span>
+      <Badge variant={status}>{value}</Badge>
+    </div>
+  );
+}
+
+// Helper functions
+function formatPenaltyName(key: string): string {
+  const names: Record<string, string> = {
+    'last_day_rush_penalty': 'Завершение в последний день',
+    'uneven_completion_penalty': 'Неравномерное выполнение',
+    'backlog_instability_penalty': 'Нестабильность беклога',
+    'scope_change_penalty': 'Изменение объема',
+    'high_todo_penalty': 'Много задач к выполнению',
+    'high_wip_penalty': 'Много задач в работе',
+    'blocked_tasks_penalty': 'Заблокированные задачи',
+    'rework_penalty': 'Доработки'
+  };
+  return names[key] || key;
+}
+
+function formatBonusName(key: string): string {
+  const names: Record<string, string> = {
+    'high_uniformity_bonus': 'Равномерное выполнение',
+    'low_blocked_bonus': 'Минимум блокировок'
+  };
+  return names[key] || key;
+}
+
+// Add new types for health metrics
+type CategoryScore = {
+  score: number;
+  weight: string;
+  description: string;
+}
+
+type KeyMetric = {
+  value: number;
+  unit: string;
+  description: string;
+}
+
+type SprintHealthResponse = {
+  health_score: number;
+  details: HealthDetails;
+  metrics_snapshot: HealthMetricsSnapshot;
+  category_scores: {
+    delivery: CategoryScore;
+    stability: CategoryScore;
+    flow: CategoryScore;
+    quality: CategoryScore;
+    team_load: CategoryScore;
+  };
+  key_metrics: {
+    completion_rate: KeyMetric;
+    scope_changes: KeyMetric;
+    blocked_tasks: KeyMetric;
+    rework: KeyMetric;
+    tech_debt: KeyMetric;
+    flow_evenness: KeyMetric;
+    last_day_completion: KeyMetric;
+  };
+}
+
+// Simplify the health score section component
+function HealthScoreSection({ metrics }: { metrics: SprintMetrics }) {
+  if (!metrics) return null;
+
+  const scores = [
+    { name: 'Доставка', score: metrics.health_details.delivery_score, weight: '25%' },
+    { name: 'Стабильность', score: metrics.health_details.stability_score, weight: '20%' },
+    { name: 'Поток', score: metrics.health_details.flow_score, weight: '20%' },
+    { name: 'Качество', score: metrics.health_details.quality_score, weight: '20%' },
+    { name: 'Нагрузка', score: metrics.health_details.team_load_score, weight: '15%' }
+  ];
+
+  const keyMetrics = [
+    { name: 'Завершение', value: metrics.health_details.completion_rate, unit: '%' },
+    { name: 'Блокировки', value: metrics.health_details.blocked_ratio, unit: '%' },
+    { name: 'Последний день', value: metrics.health_details.last_day_completion, unit: '%' }
+  ];
+
+  return (
+    <div className="space-y-6">
+      {/* Health Score */}
+      <div className="flex items-center justify-between">
+        <span className="text-4xl font-bold">
+          {metrics.health_score.toFixed(1)}%
+        </span>
+        <Badge variant={
+          metrics.health_score >= 80 ? "success" :
+          metrics.health_score >= 60 ? "warning" : "destructive"
+        }>
+          {metrics.health_score >= 80 ? "Здоровый" :
+           metrics.health_score >= 60 ? "Требует внимания" : "Критический"}
+        </Badge>
+      </div>
+
+      {/* Category Scores */}
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+        {scores.map(({ name, score, weight }) => (
+          <Card key={name}>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium">{name}</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{score.toFixed(1)}</div>
+              <p className="text-xs text-muted-foreground">Вес: {weight}</p>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+
+      {/* Key Metrics */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {keyMetrics.map(({ name, value, unit }) => (
+          <div key={name} className="flex justify-between items-center p-2 border rounded">
+            <span>{name}</span>
+            <Badge variant={value > 80 ? "success" : "warning"}>
+              {value.toFixed(1)}{unit}
+            </Badge>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export function SprintHealthDashboardComponent() {
   // State
   const [sprints, setSprints] = useState<string[]>([]);
@@ -273,6 +576,9 @@ export function SprintHealthDashboardComponent() {
 
   // Add new state for sprint period
   const [sprintPeriod, setSprintPeriod] = useState<SprintPeriod | null>(null);
+
+  // Add new state for health metrics
+  const [healthMetrics, setHealthMetrics] = useState<SprintHealthResponse | null>(null);
 
   // Fetch available sprints and areas
   useEffect(() => {
@@ -326,16 +632,15 @@ export function SprintHealthDashboardComponent() {
     });
   }, [selectedSprints.length, selectedAreas.length]);
 
-  // Fetch metrics when selection changes
+  // Update the fetchMetrics function to also fetch health metrics
   useEffect(() => {
     const fetchMetrics = async () => {
-      // Guard against empty selections
       if (!selectedSprints.length || !selectedAreas.length) {
         setMetrics(null);
+        setHealthMetrics(null);
         return;
       }
       
-      // Store current selections for comparison
       const currentSprints = [...selectedSprints];
       const currentAreas = [...selectedAreas];
       
@@ -351,33 +656,41 @@ export function SprintHealthDashboardComponent() {
         
         queryParams.append('time_frame', timeline.timeFramePercentage.toString());
         
-        const response = await fetch(`${API_BASE_URL}/metrics?${queryParams}`);
+        // Fetch both metrics and health metrics in parallel
+        const [metricsResponse, healthResponse] = await Promise.all([
+          fetch(`${API_BASE_URL}/metrics?${queryParams}`),
+          fetch(`${API_BASE_URL}/sprint-health?${queryParams}`)
+        ]);
         
-        // Verify selections haven't changed during fetch
         if (!arraysEqual(currentSprints, selectedSprints) || 
             !arraysEqual(currentAreas, selectedAreas)) {
-          return; // Skip update if selections changed
+          return;
         }
         
-        if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.detail || 'Failed to fetch metrics');
+        if (!metricsResponse.ok || !healthResponse.ok) {
+          const errorData = await (metricsResponse.ok ? healthResponse : metricsResponse).json();
+          throw new Error(errorData.detail || 'Failed to fetch data');
         }
         
-        const data = await response.json();
+        const [metricsData, healthData] = await Promise.all([
+          metricsResponse.json(),
+          healthResponse.json()
+        ]);
         
-        if (!isValidBackendMetrics(data)) {
+        if (!isValidBackendMetrics(metricsData)) {
           throw new Error('Invalid metrics data received from server');
         }
         
-        const transformedMetrics = transformBackendMetrics(data, sprintStartDate);
+        const transformedMetrics = transformBackendMetrics(metricsData, sprintStartDate);
         setMetrics(transformedMetrics);
+        setHealthMetrics(healthData);
         setError(null);
         
       } catch (err) {
-        console.error('Error fetching metrics:', err);
+        console.error('Error fetching data:', err);
         setError(err instanceof Error ? err.message : String(err));
         setMetrics(null);
+        setHealthMetrics(null);
       }
     };
     
@@ -480,27 +793,114 @@ export function SprintHealthDashboardComponent() {
     return value > threshold ? 'text-red-500' : 'text-green-500';
   };
 
+  // Add new component for category scores
+  function CategoryScores({ categories }: { categories: SprintHealthResponse['category_scores'] }) {
+    return (
+      <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+        {Object.entries(categories).map(([key, category]) => (
+          <Card key={key}>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium">
+                {formatCategoryName(key)}
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">
+                {category.score.toFixed(1)}
+              </div>
+              <Tooltip>
+                <TooltipTrigger>
+                  <p className="text-xs text-muted-foreground">
+                    Вес: {category.weight}
+                  </p>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>{category.description}</p>
+                </TooltipContent>
+              </Tooltip>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+    );
+  }
+
+  // Add new component for key metrics
+  function KeyMetrics({ metrics }: { metrics: SprintHealthResponse['key_metrics'] }) {
+    return (
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        {Object.entries(metrics).map(([key, metric]) => (
+          <Card key={key}>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium">
+                {formatMetricName(key)}
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">
+                {metric.value.toFixed(1)}{metric.unit}
+              </div>
+              <Tooltip>
+                <TooltipTrigger>
+                  <Info className="h-4 w-4 text-muted-foreground" />
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>{metric.description}</p>
+                </TooltipContent>
+              </Tooltip>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+    );
+  }
+
+  // Add helper function for formatting names
+  function formatCategoryName(key: string): string {
+    const names: Record<string, string> = {
+      delivery: 'Доставка',
+      stability: 'Стабильность',
+      flow: 'Поток',
+      quality: 'Качество',
+      team_load: 'Нагрузка'
+    };
+    return names[key] || key;
+  }
+
+  function formatMetricName(key: string): string {
+    const names: Record<string, string> = {
+      completion_rate: 'Завершение',
+      scope_changes: 'Изменения',
+      blocked_tasks: 'Блокировки',
+      rework: 'Доработки',
+      tech_debt: 'Тех. долг',
+      flow_evenness: 'Равномерность',
+      last_day_completion: 'Последний день'
+    };
+    return names[key] || key;
+  }
+
   return (
     <TooltipProvider>
       <div className="container mx-auto p-4 space-y-6">
         {/* Header Section */}
         <div className="flex justify-between items-center">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">Sprint Health Dashboard</h1>
+            <h1 className="text-3xl font-bold tracking-tight">Панель здоровья спринта</h1>
             <p className="text-muted-foreground">
-              Monitor and analyze sprint performance metrics
+              Мониторинг и анализ метрик эффективности спринта
             </p>
           </div>
           
           {sprintPeriod && (
             <Badge variant="outline" className="text-lg">
               {sprintPeriod.type === 'sprint' 
-                ? 'Sprint Analysis' 
+                ? 'Анализ спринта' 
                 : sprintPeriod.type === 'quarter'
-                  ? 'Quarterly Analysis'
+                  ? 'Квартальный анализ'
                   : sprintPeriod.type === 'halfYear'
-                    ? 'Half-Year Analysis'
-                    : 'Yearly Analysis'}
+                    ? 'Полугодовой анализ'
+                    : 'Годовой анализ'}
             </Badge>
           )}
         </div>
@@ -508,7 +908,7 @@ export function SprintHealthDashboardComponent() {
         {!metrics && (
           <Card className="mb-4">
             <CardHeader>
-              <CardTitle>Upload Sprint Data</CardTitle>
+              <CardTitle>Загрузить данные спринта</CardTitle>
             </CardHeader>
             <CardContent>
               <FileUploadZone />
@@ -519,8 +919,8 @@ export function SprintHealthDashboardComponent() {
         {/* Main Tabs */}
         <Tabs defaultValue="overview" className="space-y-4">
           <TabsList>
-            <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="details">Detailed Analysis</TabsTrigger>
+            <TabsTrigger value="overview">Обзор</TabsTrigger>
+            <TabsTrigger value="details">Детальный анализ</TabsTrigger>
           </TabsList>
 
           <TabsContent value="overview" className="space-y-4">
@@ -531,13 +931,13 @@ export function SprintHealthDashboardComponent() {
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <CalendarIcon />
-                    Sprint Selection
+                    Выбор спринта
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <Select onValueChange={handleSprintSelection}>
                     <SelectTrigger>
-                      <SelectValue placeholder="Select sprints..." />
+                      <SelectValue placeholder="Выберите спринты..." />
                     </SelectTrigger>
                     <SelectContent>
                       {sprints.map((sprint) => (
@@ -574,7 +974,7 @@ export function SprintHealthDashboardComponent() {
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <Layers />
-                    Area Selection
+                    Выбор области
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -588,7 +988,7 @@ export function SprintHealthDashboardComponent() {
                     }}
                   >
                     <SelectTrigger>
-                      <SelectValue placeholder="Select areas..." />
+                      <SelectValue placeholder="Выберите области..." />
                     </SelectTrigger>
                     <SelectContent>
                       {areas.map((area) => (
@@ -645,81 +1045,51 @@ export function SprintHealthDashboardComponent() {
                 <Card className="bg-gradient-to-br from-background to-secondary/10">
                   <CardHeader>
                     <CardTitle className="flex items-center justify-between">
-                      <span>Sprint Health Score</span>
+                      <span>Оценка здоровья спринта</span>
                       <TooltipProvider>
                         <Tooltip>
                           <TooltipTrigger>
                             <Info />
                           </TooltipTrigger>
                           <TooltipContent>
-                            <p>Overall health score based on multiple metrics</p>
+                            <p>Комплексная оценка здоровья спринта</p>
                           </TooltipContent>
                         </Tooltip>
                       </TooltipProvider>
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="space-y-4">
-                      <div className="flex items-center justify-between">
-                        <span className="text-4xl font-bold">
-                          {metrics.health_percentage.toFixed(1)}%
-                        </span>
-                        <Badge variant={
-                          metrics.health_percentage >= 80 ? "success" :
-                          metrics.health_percentage >= 50 ? "warning" : "destructive"
-                        }>
-                          {metrics.health_percentage >= 80 ? "Healthy" :
-                           metrics.health_percentage >= 50 ? "At Risk" : "Critical"}
-                        </Badge>
-                      </div>
-                      
-                      <Progress 
-                        value={metrics.health_percentage} 
-                        className={cn(
-                          "h-2",
-                          metrics.health_percentage >= 80 ? "bg-green-500" :
-                          metrics.health_percentage >= 50 ? "bg-yellow-500" : "bg-red-500"
-                        )}
-                      />
-                      
-                      <p className="text-sm text-muted-foreground">
-                        {metrics.health_percentage >= 80 ? 
-                          'Sprint is progressing well with minimal issues.' :
-                          metrics.health_percentage >= 50 ?
-                            'Some attention required to keep sprint on track.' :
-                            'Critical issues detected. Immediate action needed.'}
-                      </p>
-                    </div>
+                    <HealthScoreSection metrics={metrics} />
                   </CardContent>
                 </Card>
               </motion.div>
             )}
 
-            {/* Key Metrics Grid - Update to use timeline data */}
+            {/* Key Metrics Grid */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <StatusCard 
-                title="To Do"
+                title="К выполнению"
                 value={metrics?.todo}
                 icon={<ClipboardList />}
                 trend={metrics?.todo_trend}
                 timeframe={timeline.timeFramePercentage}
               />
               <StatusCard 
-                title="In Progress"
+                title="В работе"
                 value={metrics?.in_progress}
                 icon={<Clock />}
                 trend={metrics?.in_progress_trend}
                 timeframe={timeline.timeFramePercentage}
               />
               <StatusCard 
-                title="Done"
+                title="Завершено"
                 value={metrics?.done}
                 icon={<CheckCircle />}
                 trend={metrics?.done_trend}
                 timeframe={timeline.timeFramePercentage}
               />
               <StatusCard 
-                title="Removed"
+                title="Удалено"
                 value={metrics?.removed}
                 icon={<XCircle />}
                 trend={metrics?.removed_trend}
@@ -727,33 +1097,33 @@ export function SprintHealthDashboardComponent() {
               />
             </div>
 
-            {/* Add Health Indicators Section */}
+            {/* Health Indicators Section */}
             {metrics && (
               <Card>
                 <CardHeader>
-                  <CardTitle>Sprint Health Indicators</CardTitle>
+                  <CardTitle>Индикаторы здоровья спринта</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <HealthIndicator 
                     value={(metrics.todo / (metrics.todo + metrics.in_progress + metrics.done)) * 100}
                     threshold={20}
-                    label="To Do Tasks (should be <20%)"
+                    label="Задачи к выполнению (должно быть <20%)"
                   />
                   <HealthIndicator 
                     value={(metrics.removed / (metrics.todo + metrics.in_progress + metrics.done + metrics.removed)) * 100}
                     threshold={10}
-                    label="Removed Tasks (should be <10%)"
+                    label="Удаленные задачи (должно быть <10%)"
                   />
                   <HealthIndicator 
                     value={metrics.backlog_changes}
                     threshold={20}
-                    label="Backlog Changes (should be <20%)"
+                    label="Изменения в бэклоге (должно быть <20%)"
                   />
                   {metrics.status_changes_uniformity && (
                     <HealthIndicator 
                       value={metrics.status_changes_uniformity}
                       threshold={80}
-                      label="Status Changes Uniformity"
+                      label="Равномерность изменений статуса"
                     />
                   )}
                 </CardContent>
@@ -762,18 +1132,17 @@ export function SprintHealthDashboardComponent() {
           </TabsContent>
 
           <TabsContent value="details" className="space-y-4">
-            {/* Detailed Analysis Content */}
             <SprintCharts metrics={metrics} />
             
             {/* Blocked Tasks Analysis */}
             <Card>
               <CardHeader>
-                <CardTitle>Blocked Tasks Analysis</CardTitle>
+                <CardTitle>Анализ заблокированных задач</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
-                    <span>Currently Blocked Tasks</span>
+                    <span>Текущие заблокированные задачи</span>
                     <Badge variant={metrics?.blocked_tasks ? "destructive" : "success"}>
                       {metrics?.blocked_tasks || 0}
                     </Badge>

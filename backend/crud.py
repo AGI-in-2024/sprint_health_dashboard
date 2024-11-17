@@ -341,54 +341,73 @@ def calculate_transition_evenness(daily_stats, sprint_duration):
     return evenness
 
 def calculate_sprint_health(metrics, tasks_df, history_df, sprint_info):
-    """Calculate overall sprint health based on specified criteria"""
-    health_score = 100
-    health_details = {}
-    
-    # 1. Check if status transitions are even (not clustered at end)
-    evenness_score = metrics['status_transitions']['transition_evenness']
-    last_day_percentage = metrics['status_transitions']['last_day_completion_percentage']
-    
-    if last_day_percentage > 30:
-        penalty = min(25, (last_day_percentage - 30) * 0.5)
-        health_score -= penalty
-        health_details['last_day_completion_penalty'] = penalty
-    
-    # 2. Todo should not be more than 20% of total
-    total_tasks = metrics['todo'] + metrics['in_progress'] + metrics['done'] + metrics['removed']
-    if total_tasks > 0:
-        todo_percentage = (metrics['todo'] / total_tasks) * 100
-        if todo_percentage > 20:
-            penalty = min(25, todo_percentage - 20)
-            health_score -= penalty
-            health_details['todo_penalty'] = penalty
-    
-    # 3. Removed should not be more than 10% of total
-    if total_tasks > 0:
-        removed_percentage = (metrics['removed'] / total_tasks) * 100
-        if removed_percentage > 10:
-            penalty = min(25, (removed_percentage - 10) * 2)
-            health_score -= penalty
-            health_details['removed_penalty'] = penalty
-    
-    # 4. Backlog should not change more than 20% after sprint start
-    if metrics['backlog_changes'] > 20:
-        penalty = min(25, metrics['backlog_changes'] - 20)
-        health_score -= penalty
-        health_details['backlog_penalty'] = penalty
-    
-    logger.info(f"Calculated health score: {health_score}")
-    return {
-        'score': max(0, min(100, health_score)),
-        'details': health_details,
-        'metrics_snapshot': {
-            'todo_percentage': todo_percentage if total_tasks > 0 else 0,
-            'removed_percentage': removed_percentage if total_tasks > 0 else 0,
-            'backlog_change_percentage': metrics['backlog_changes'],
-            'transition_evenness': evenness_score,
-            'last_day_completion_percentage': last_day_percentage
+    """Calculate simplified sprint health score"""
+    try:
+        total_tasks = metrics['todo'] + metrics['in_progress'] + metrics['done'] + metrics['removed']
+        if total_tasks == 0:
+            return {
+                'score': 0,
+                'details': {
+                    'delivery_score': 0,
+                    'stability_score': 0,
+                    'flow_score': 0,
+                    'quality_score': 0,
+                    'team_load_score': 0,
+                    'completion_rate': 0,
+                    'blocked_ratio': 0,
+                    'last_day_completion': 0
+                }
+            }
+
+        # Calculate basic metrics
+        completion_rate = (metrics['done'] / total_tasks) * 100 if total_tasks > 0 else 0
+        blocked_ratio = (metrics['blocked_tasks'] / total_tasks) * 100 if total_tasks > 0 else 0
+        last_day_completion = metrics.get('status_transitions', {}).get('last_day_completion_percentage', 0)
+
+        # Calculate category scores
+        delivery_score = min(100, max(0, completion_rate))
+        stability_score = min(100, max(0, 100 - metrics['backlog_changes']))
+        flow_score = min(100, max(0, 100 - blocked_ratio))
+        quality_score = min(100, max(0, 100 - last_day_completion))
+        team_load_score = 80  # Default score if no specific calculation
+
+        # Calculate final health score
+        health_score = (
+            delivery_score * 0.25 +
+            stability_score * 0.20 +
+            flow_score * 0.20 +
+            quality_score * 0.20 +
+            team_load_score * 0.15
+        )
+
+        return {
+            'score': round(health_score, 1),
+            'details': {
+                'delivery_score': round(delivery_score, 1),
+                'stability_score': round(stability_score, 1),
+                'flow_score': round(flow_score, 1),
+                'quality_score': round(quality_score, 1),
+                'team_load_score': round(team_load_score, 1),
+                'completion_rate': round(completion_rate, 1),
+                'blocked_ratio': round(blocked_ratio, 1),
+                'last_day_completion': round(last_day_completion, 1)
+            }
         }
-    }
+    except Exception as e:
+        logger.error(f"Error calculating sprint health: {str(e)}")
+        return {
+            'score': 0,
+            'details': {
+                'delivery_score': 0,
+                'stability_score': 0,
+                'flow_score': 0,
+                'quality_score': 0,
+                'team_load_score': 0,
+                'completion_rate': 0,
+                'blocked_ratio': 0,
+                'last_day_completion': 0
+            }
+        }
 
 def _calculate_base_metrics(sprint_tasks, sprint_info, history_df):
     """Calculate all base metrics for the sprint up to the selected time frame."""
@@ -408,7 +427,7 @@ def _calculate_base_metrics(sprint_tasks, sprint_info, history_df):
         status_transitions = analyze_status_transitions(sprint_tasks, history_df, sprint_info)
         
         sprint_health = calculate_sprint_health({
-            'todo': todo_value,  # Use todo_value instead of todo
+            'todo': todo_value,
             'in_progress': in_progress,
             'done': done,
             'removed': removed,
@@ -417,9 +436,8 @@ def _calculate_base_metrics(sprint_tasks, sprint_info, history_df):
             'status_transitions': status_transitions
         }, sprint_tasks, history_df, sprint_info)
         
-        # Compile all metrics into a dictionary
-        metrics = {
-            'todo': todo_value,  # Use todo_value instead of todo
+        return {
+            'todo': todo_value,
             'in_progress': in_progress,
             'done': done,
             'removed': removed,
@@ -429,12 +447,8 @@ def _calculate_base_metrics(sprint_tasks, sprint_info, history_df):
             'added_tasks': added_tasks,
             'status_transitions': status_transitions,
             'health_score': sprint_health['score'],
-            'health_details': sprint_health['details'],
-            'health_metrics': sprint_health['metrics_snapshot'],
-            'sprint_health': sprint_health
+            'health_details': sprint_health['details']
         }
-        logger.info("Metrics calculated successfully up to the selected time frame")
-        return metrics
     except Exception as e:
         logger.error(f"Error in _calculate_base_metrics: {str(e)}")
         raise
