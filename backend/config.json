@@ -1,0 +1,16 @@
+{
+    "enabled_metrics": [
+        "cycle_time",
+        "lead_time",
+        "velocity",
+        "throughput",
+        "bug_rate",
+        "reopen_rate"
+    ],
+    "thresholds": {},
+    "email_sender": "noreply@sprinthealth.com",
+    "smtp_server": "smtp.example.com",
+    "smtp_port": 587,
+    "smtp_username": "user@example.com",
+    "smtp_password": "securepassword"
+}

@@ -35,7 +35,14 @@ app.add_middleware(
 
 # Initialize data loader
 data_loader = DataLoader()
-data_loader.load_data()
+try:
+    data_loader.load_data()
+    # Add data quality check
+    data_loader.check_data_quality()
+    logger.info("Data loaded and validated successfully")
+except Exception as e:
+    logger.error(f"Error during data initialization: {str(e)}")
+    sys.exit(1)
 
 # Add health check endpoint
 @app.get("/api/health")
@@ -69,19 +76,39 @@ def get_sprints():
         "sprints": data_loader.sprints['sprint_name'].tolist()
     }
 
-@app.get("/api/teams")
-def get_teams():
-    """Get list of all available teams"""
-    teams = data_loader.tasks['workgroup'].dropna().unique().tolist()
-    teams = [team if pd.notna(team) else None for team in teams]
-    return {
-        "teams": teams
-    }
+@app.get("/api/areas")
+def get_areas():
+    """Get list of all available areas"""
+    try:
+        # Convert to Series first if it's a DataFrame column
+        if isinstance(data_loader.tasks['area'], pd.DataFrame):
+            areas_series = data_loader.tasks['area'].iloc[:, 0]
+        else:
+            areas_series = data_loader.tasks['area']
+            
+        # Get unique values
+        areas = areas_series.dropna().unique().tolist()
+        
+        # Add debug logging
+        logger.info(f"Found {len(areas)} unique areas")
+        logger.debug(f"Areas: {areas}")
+        
+        return {
+            "areas": areas
+        }
+    except Exception as e:
+        logger.error(f"Error in get_areas: {str(e)}")
+        logger.error(f"Data type of area column: {type(data_loader.tasks['area'])}")
+        logger.error(f"Column names: {data_loader.tasks.columns.tolist()}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to get areas: {str(e)}"
+        )
 
 @app.get("/api/metrics", response_model=Dict[str, Any])
 async def get_metrics(
     selected_sprints: Optional[List[str]] = Query(None, alias="selected_sprints[]"),
-    selected_teams: Optional[List[str]] = Query(None, alias="selected_teams[]"),
+    selected_areas: Optional[List[str]] = Query(None, alias="selected_areas[]"),
     time_frame: Optional[int] = Query(100, ge=0, le=100)
 ):
     """Get metrics with improved error handling"""
@@ -98,10 +125,10 @@ async def get_metrics(
             detail="No sprints selected"
         )
     
-    if not selected_teams:
+    if not selected_areas:
         raise HTTPException(
             status_code=422,
-            detail="No teams selected"
+            detail="No areas selected"
         )
     
     try:
@@ -110,7 +137,7 @@ async def get_metrics(
             data_loader.sprints,
             data_loader.history,
             selected_sprints,
-            selected_teams,
+            selected_areas,
             time_frame
         )
         return metrics
@@ -126,7 +153,7 @@ async def get_metrics(
             detail="Internal server error while calculating metrics"
         )
 
-def handle_shutdown(signal, frame):
+def handle_shutdown(signal_number, frame):
     """Handle graceful shutdown"""
     logger.info("Shutting down gracefully...")
     # Cleanup code here if needed

@@ -112,6 +112,9 @@ class DataLoader:
             tasks_df = tasks_df.iloc[1:].reset_index(drop=True)
             tasks_df.columns = column_names
         
+        # Remove duplicate columns
+        tasks_df = tasks_df.loc[:, ~tasks_df.columns.duplicated()]
+        
         # Ensure 'entity_id' column is properly formatted
         if 'entity_id' in tasks_df.columns:
             tasks_df['entity_id'] = pd.to_numeric(tasks_df['entity_id'], errors='coerce').astype('Int64')
@@ -123,6 +126,17 @@ class DataLoader:
         # Parse dates for tasks
         tasks_date_cols = ['create_date', 'update_date', 'due_date']
         tasks_df = self._parse_dates(tasks_df, tasks_date_cols)
+        
+        # After loading and processing the data
+        self.logger.info(f"Tasks DataFrame shape: {tasks_df.shape}")
+        self.logger.info(f"Tasks columns: {tasks_df.columns.tolist()}")
+        
+        # Ensure area column is properly formatted
+        if 'area' in tasks_df.columns:
+            if isinstance(tasks_df['area'], pd.DataFrame):
+                self.logger.warning("Area column is a DataFrame, converting to Series")
+                tasks_df['area'] = tasks_df['area'].iloc[:, 0]
+        
         self.tasks = tasks_df
 
     def _load_sprints(self):
@@ -235,7 +249,15 @@ class DataLoader:
     def _validate_loaded_data(self):
         """Validate loaded data for completeness and correctness"""
         try:
-            # Check if DataFrames are not empty
+            # Add detailed data validation logging
+            self.logger.info("\nValidating loaded data:")
+            
+            # Check DataFrames
+            self.logger.info("Checking DataFrame sizes:")
+            self.logger.info(f"Tasks: {self.tasks.shape}")
+            self.logger.info(f"Sprints: {self.sprints.shape}")
+            self.logger.info(f"History: {self.history.shape}")
+            
             if self.tasks.empty:
                 self.logger.error("Tasks DataFrame is empty")
                 return False
@@ -246,8 +268,20 @@ class DataLoader:
                 self.logger.error("History DataFrame is empty")
                 return False
 
+            # Log status distribution
+            self.logger.info("\nStatus Distribution:")
+            status_counts = self.tasks['status'].value_counts()
+            for status, count in status_counts.items():
+                self.logger.info(f"{status}: {count}")
+
+            # Log resolution distribution
+            self.logger.info("\nResolution Distribution:")
+            resolution_counts = self.tasks['resolution'].value_counts(dropna=False)
+            for resolution, count in resolution_counts.items():
+                self.logger.info(f"{resolution}: {count}")
+
             # Validate required columns in tasks
-            required_task_columns = ['entity_id', 'status', 'workgroup', 'estimation']
+            required_task_columns = ['entity_id', 'status', 'area', 'estimation']
             if not all(col in self.tasks.columns for col in required_task_columns):
                 self.logger.error(f"Missing required columns in tasks: {set(required_task_columns) - set(self.tasks.columns)}")
                 return False
@@ -286,3 +320,76 @@ class DataLoader:
         except Exception as e:
             self.logger.error(f"Error during data validation: {str(e)}")
             return False
+
+    def check_data_quality(self):
+        """Perform detailed data quality checks"""
+        try:
+            self.logger.info("\nPerforming data quality checks:")
+            
+            # Check for missing values
+            self.logger.info("\nMissing values in Tasks:")
+            missing_tasks = self.tasks.isnull().sum()
+            for col, count in missing_tasks[missing_tasks > 0].items():
+                self.logger.info(f"{col}: {count} missing values")
+            
+            # Check date ranges
+            self.logger.info("\nDate ranges:")
+            if 'create_date' in self.tasks.columns:
+                self.logger.info(f"Tasks create_date range: "
+                               f"{self.tasks['create_date'].min()} to "
+                               f"{self.tasks['create_date'].max()}")
+            
+            # Check estimation values
+            self.logger.info("\nEstimation statistics:")
+            # Convert estimation to numeric, coercing errors to NaN
+            estimation_numeric = pd.to_numeric(self.tasks['estimation'], errors='coerce')
+            self.logger.info(estimation_numeric.describe())
+            
+            # Check status transitions in history
+            status_changes = self.history[
+                self.history['history_property_name'] == 'Статус'
+            ]
+            self.logger.info("\nStatus changes statistics:")
+            self.logger.info(f"Total status changes: {len(status_changes)}")
+            
+            # Check for potential data anomalies
+            self.logger.info("\nChecking for anomalies:")
+            
+            # Tasks without status
+            tasks_no_status = self.tasks['status'].isnull().sum()
+            self.logger.info(f"Tasks without status: {tasks_no_status}")
+            
+            # Tasks with future dates
+            future_tasks = self.tasks[
+                self.tasks['create_date'] > pd.Timestamp.now()
+            ]
+            self.logger.info(f"Tasks with future dates: {len(future_tasks)}")
+            
+            # Tasks with negative estimation
+            negative_est = estimation_numeric[estimation_numeric < 0]
+            self.logger.info(f"Tasks with negative estimation: {len(negative_est)}")
+            
+            # Additional checks for estimation values
+            self.logger.info("\nEstimation value distribution:")
+            value_counts = estimation_numeric.value_counts().sort_index()
+            self.logger.info("Most common estimation values:")
+            self.logger.info(value_counts.head())
+            
+            # Check for unusually high estimations
+            high_est_threshold = estimation_numeric.quantile(0.95)  # 95th percentile
+            high_est = estimation_numeric[estimation_numeric > high_est_threshold]
+            self.logger.info(f"\nTasks with unusually high estimation (>{high_est_threshold:.0f}):")
+            self.logger.info(f"Count: {len(high_est)}")
+            
+            # Log summary statistics
+            self.logger.info("\nData Quality Summary:")
+            self.logger.info(f"Total tasks: {len(self.tasks)}")
+            self.logger.info(f"Tasks with estimation: {estimation_numeric.notna().sum()}")
+            self.logger.info(f"Tasks without estimation: {estimation_numeric.isna().sum()}")
+            self.logger.info(f"Average estimation: {estimation_numeric.mean():.2f}")
+            self.logger.info(f"Median estimation: {estimation_numeric.median():.2f}")
+            
+        except Exception as e:
+            self.logger.error(f"Error in data quality check: {str(e)}")
+            self.logger.error("Continuing despite data quality check error")
+            # Don't raise the exception, just log it and continue
