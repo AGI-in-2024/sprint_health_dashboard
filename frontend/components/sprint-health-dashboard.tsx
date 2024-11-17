@@ -432,152 +432,151 @@ export function SprintHealthDashboardComponent() {
   };
 
   return (
-    <div className="container mx-auto p-4 space-y-6">
-      {/* Header Section */}
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Sprint Health Dashboard</h1>
-          <p className="text-muted-foreground">
-            Monitor and analyze sprint performance metrics
-          </p>
-        </div>
-        
-        {sprintPeriod && (
-          <Badge variant="outline" className="text-lg">
-            {sprintPeriod.type === 'sprint' 
-              ? 'Sprint Analysis' 
-              : sprintPeriod.type === 'quarter'
-                ? 'Quarterly Analysis'
-                : sprintPeriod.type === 'halfYear'
-                  ? 'Half-Year Analysis'
-                  : 'Yearly Analysis'}
-          </Badge>
-        )}
-      </div>
-
-      {!metrics && (
-        <Card className="mb-4">
-          <CardHeader>
-            <CardTitle>Upload Sprint Data</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <FileUploadZone />
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Main Tabs */}
-      <Tabs defaultValue="overview" className="space-y-4">
-        <TabsList>
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="details">Detailed Analysis</TabsTrigger>
-          <TabsTrigger value="timeline">Timeline</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="overview" className="space-y-4">
-          {/* Selection Controls */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* Sprint Selection */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <CalendarIcon className="h-4 w-4" />
-                  Sprint Selection
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <Select onValueChange={handleSprintSelection}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select sprints..." />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {sprints.map((sprint) => (
-                      <SelectItem key={sprint} value={sprint}>
-                        {sprint}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-
-                <div className="flex flex-wrap gap-2 mt-4">
-                  {selectedSprints.map(sprint => (
-                    <motion.div
-                      key={sprint}
-                      initial={{ opacity: 0, scale: 0.9 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      exit={{ opacity: 0, scale: 0.9 }}
-                    >
-                      <Badge 
-                        variant="secondary"
-                        className="cursor-pointer hover:bg-secondary/80"
-                        onClick={() => handleSprintSelection(sprint)}
-                      >
-                        {sprint} ×
-                      </Badge>
-                    </motion.div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Area Selection */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Layers className="h-4 w-4" />
-                  Area Selection
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <Select
-                  onValueChange={(value) => {
-                    setSelectedAreas(current => 
-                      current.includes(value) 
-                        ? current.filter(a => a !== value)
-                        : [...current, value]
-                    );
-                  }}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select areas..." />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {areas.map((area) => (
-                      <SelectItem key={area} value={area}>
-                        {area}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-
-                <div className="flex flex-wrap gap-2 mt-4">
-                  {selectedAreas.map(area => (
-                    <motion.div
-                      key={area}
-                      initial={{ opacity: 0, scale: 0.9 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      exit={{ opacity: 0, scale: 0.9 }}
-                    >
-                      <Badge 
-                        variant="outline"
-                        className="cursor-pointer hover:bg-secondary/80"
-                        onClick={() => setSelectedAreas(current => 
-                          current.filter(a => a !== area)
-                        )}
-                      >
-                        {area} ×
-                      </Badge>
-                    </motion.div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
+    <TooltipProvider>
+      <div className="container mx-auto p-4 space-y-6">
+        {/* Header Section */}
+        <div className="flex justify-between items-center">
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight">Sprint Health Dashboard</h1>
+            <p className="text-muted-foreground">
+              Monitor and analyze sprint performance metrics
+            </p>
           </div>
+          
+          {sprintPeriod && (
+            <Badge variant="outline" className="text-lg">
+              {sprintPeriod.type === 'sprint' 
+                ? 'Sprint Analysis' 
+                : sprintPeriod.type === 'quarter'
+                  ? 'Quarterly Analysis'
+                  : sprintPeriod.type === 'halfYear'
+                    ? 'Half-Year Analysis'
+                    : 'Yearly Analysis'}
+            </Badge>
+          )}
+        </div>
 
-          {/* Health Score and Timeline Row */}
-          {metrics && (
+        {!metrics && (
+          <Card className="mb-4">
+            <CardHeader>
+              <CardTitle>Upload Sprint Data</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <FileUploadZone />
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Main Tabs */}
+        <Tabs defaultValue="overview" className="space-y-4">
+          <TabsList>
+            <TabsTrigger value="overview">Overview</TabsTrigger>
+            <TabsTrigger value="details">Detailed Analysis</TabsTrigger>
+            <TabsTrigger value="timeline">Timeline</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="overview" className="space-y-4">
+            {/* Selection Controls */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {/* Health Score Card */}
+              {/* Sprint Selection */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <CalendarIcon className="h-4 w-4" />
+                    Sprint Selection
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <Select onValueChange={handleSprintSelection}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select sprints..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {sprints.map((sprint) => (
+                        <SelectItem key={sprint} value={sprint}>
+                          {sprint}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+
+                  <div className="flex flex-wrap gap-2 mt-4">
+                    {selectedSprints.map(sprint => (
+                      <motion.div
+                        key={sprint}
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.9 }}
+                      >
+                        <Badge 
+                          variant="secondary"
+                          className="cursor-pointer hover:bg-secondary/80"
+                          onClick={() => handleSprintSelection(sprint)}
+                        >
+                          {sprint} ×
+                        </Badge>
+                      </motion.div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Area Selection */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Layers className="h-4 w-4" />
+                    Area Selection
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <Select
+                    onValueChange={(value) => {
+                      setSelectedAreas(current => 
+                        current.includes(value) 
+                          ? current.filter(a => a !== value)
+                          : [...current, value]
+                      );
+                    }}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select areas..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {areas.map((area) => (
+                        <SelectItem key={area} value={area}>
+                          {area}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+
+                  <div className="flex flex-wrap gap-2 mt-4">
+                    {selectedAreas.map(area => (
+                      <motion.div
+                        key={area}
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.9 }}
+                      >
+                        <Badge 
+                          variant="outline"
+                          className="cursor-pointer hover:bg-secondary/80"
+                          onClick={() => setSelectedAreas(current => 
+                            current.filter(a => a !== area)
+                          )}
+                        >
+                          {area} ×
+                        </Badge>
+                      </motion.div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Health Score Card */}
+            {metrics && (
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -633,291 +632,284 @@ export function SprintHealthDashboardComponent() {
                     </div>
                   </CardContent>
                 </Card>
-
-                {/* Timeline Component */}
-                <SprintTimeline
-                  currentDay={timeline.currentDay}
-                  totalDays={timeline.totalDays}
-                  dailyChanges={metrics.daily_changes || []}
-                />
               </motion.div>
+            )}
+
+            {/* Key Metrics Grid */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <StatusCard 
+                title="To Do"
+                value={metrics?.todo}
+                icon={<ClipboardList className="h-4 w-4" />}
+                trend={metrics?.todo_trend}
+              />
+              <StatusCard 
+                title="In Progress"
+                value={metrics?.in_progress}
+                icon={<Clock className="h-4 w-4" />}
+                trend={metrics?.in_progress_trend}
+              />
+              <StatusCard 
+                title="Done"
+                value={metrics?.done}
+                icon={<CheckCircle className="h-4 w-4" />}
+                trend={metrics?.done_trend}
+              />
+              <StatusCard 
+                title="Removed"
+                value={metrics?.removed}
+                icon={<XCircle className="h-4 w-4" />}
+                trend={metrics?.removed_trend}
+              />
             </div>
-          )}
 
-          {/* Key Metrics Grid */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <StatusCard 
-              title="To Do"
-              value={metrics?.todo}
-              icon={<ClipboardList className="h-4 w-4" />}
-              trend={metrics?.todo_trend}
-            />
-            <StatusCard 
-              title="In Progress"
-              value={metrics?.in_progress}
-              icon={<Clock className="h-4 w-4" />}
-              trend={metrics?.in_progress_trend}
-            />
-            <StatusCard 
-              title="Done"
-              value={metrics?.done}
-              icon={<CheckCircle className="h-4 w-4" />}
-              trend={metrics?.done_trend}
-            />
-            <StatusCard 
-              title="Removed"
-              value={metrics?.removed}
-              icon={<XCircle className="h-4 w-4" />}
-              trend={metrics?.removed_trend}
-            />
-          </div>
-
-          {/* Add Health Indicators Section */}
-          {metrics && (
-            <Card>
-              <CardHeader>
-                <CardTitle>Sprint Health Indicators</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <HealthIndicator 
-                  value={(metrics.todo / (metrics.todo + metrics.in_progress + metrics.done)) * 100}
-                  threshold={20}
-                  label="To Do Tasks (should be <20%)"
-                />
-                <HealthIndicator 
-                  value={(metrics.removed / (metrics.todo + metrics.in_progress + metrics.done + metrics.removed)) * 100}
-                  threshold={10}
-                  label="Removed Tasks (should be <10%)"
-                />
-                <HealthIndicator 
-                  value={metrics.backlog_changes}
-                  threshold={20}
-                  label="Backlog Changes (should be <20%)"
-                />
-                {metrics.status_changes_uniformity && (
+            {/* Add Health Indicators Section */}
+            {metrics && (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Sprint Health Indicators</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
                   <HealthIndicator 
-                    value={metrics.status_changes_uniformity}
-                    threshold={80}
-                    label="Status Changes Uniformity"
+                    value={(metrics.todo / (metrics.todo + metrics.in_progress + metrics.done)) * 100}
+                    threshold={20}
+                    label="To Do Tasks (should be <20%)"
                   />
-                )}
-              </CardContent>
-            </Card>
-          )}
-        </TabsContent>
-
-        <TabsContent value="details" className="space-y-4">
-          {/* Detailed Analysis Content */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* Task Distribution Chart */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Task Distribution</CardTitle>
-              </CardHeader>
-              <CardContent className="h-[300px]">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={[
-                    { name: 'To Do', value: metrics?.todo || 0 },
-                    { name: 'In Progress', value: metrics?.in_progress || 0 },
-                    { name: 'Done', value: metrics?.done || 0 },
-                    { name: 'Removed', value: metrics?.removed || 0 }
-                  ]}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="name" />
-                    <YAxis />
-                    <Tooltip content={({ active, payload, label }) => {
-                      if (active && payload && payload.length) {
-                        return (
-                          <div className="bg-white p-2 border rounded shadow-lg">
-                            <p className="font-bold">{label}</p>
-                            <p>{`Value: ${payload[0].value}`}</p>
-                          </div>
-                        );
-                      }
-                      return null;
-                    }} />
-                    <Bar dataKey="value" fill="#8884d8" />
-                  </BarChart>
-                </ResponsiveContainer>
-              </CardContent>
-            </Card>
-
-            {/* Backlog Changes Chart */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Backlog Changes Over Time</CardTitle>
-              </CardHeader>
-              <CardContent className="h-[300px]">
-                <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={metrics?.daily_changes || []}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="day" />
-                    <YAxis />
-                    <Tooltip content={({ active, payload, label }) => {
-                      if (active && payload && payload.length) {
-                        return (
-                          <div className="bg-white p-2 border rounded shadow-lg">
-                            <p className="font-bold">Day {label}</p>
-                            {payload.map((entry, index) => (
-                              <p key={index} style={{ color: entry.color }}>
-                                {entry.name}: {entry.value}
-                              </p>
-                            ))}
-                          </div>
-                        );
-                      }
-                      return null;
-                    }} />
-                    <Line type="monotone" dataKey="added" stroke="#4CAF50" name="Added" />
-                    <Line type="monotone" dataKey="removed" stroke="#f44336" name="Removed" />
-                  </LineChart>
-                </ResponsiveContainer>
-              </CardContent>
-            </Card>
-
-            {/* Velocity Trend */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Velocity Trend</CardTitle>
-              </CardHeader>
-              <CardContent className="h-[300px]">
-                <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={metrics?.daily_changes || []}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="day" />
-                    <YAxis />
-                    <Tooltip content={({ active, payload, label }) => {
-                      if (active && payload && payload.length) {
-                        return (
-                          <div className="bg-white p-2 border rounded shadow-lg">
-                            <p className="font-bold">Day {label}</p>
-                            <p>{`Completed Tasks: ${payload[0]?.value || 0}`}</p>
-                          </div>
-                        );
-                      }
-                      return null;
-                    }} />
-                    <Area 
-                      type="monotone" 
-                      dataKey="done" 
-                      stroke="#2196F3" 
-                      fill="#2196F3" 
-                      fillOpacity={0.3}
-                      name="Completed Tasks"
+                  <HealthIndicator 
+                    value={(metrics.removed / (metrics.todo + metrics.in_progress + metrics.done + metrics.removed)) * 100}
+                    threshold={10}
+                    label="Removed Tasks (should be <10%)"
+                  />
+                  <HealthIndicator 
+                    value={metrics.backlog_changes}
+                    threshold={20}
+                    label="Backlog Changes (should be <20%)"
+                  />
+                  {metrics.status_changes_uniformity && (
+                    <HealthIndicator 
+                      value={metrics.status_changes_uniformity}
+                      threshold={80}
+                      label="Status Changes Uniformity"
                     />
-                  </AreaChart>
-                </ResponsiveContainer>
-              </CardContent>
-            </Card>
+                  )}
+                </CardContent>
+              </Card>
+            )}
+          </TabsContent>
 
-            {/* Blocked Tasks Analysis */}
+          <TabsContent value="details" className="space-y-4">
+            {/* Detailed Analysis Content */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Task Distribution Chart */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Task Distribution</CardTitle>
+                </CardHeader>
+                <CardContent className="h-[300px]">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={[
+                      { name: 'To Do', value: metrics?.todo || 0 },
+                      { name: 'In Progress', value: metrics?.in_progress || 0 },
+                      { name: 'Done', value: metrics?.done || 0 },
+                      { name: 'Removed', value: metrics?.removed || 0 }
+                    ]}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="name" />
+                      <YAxis />
+                      <Tooltip content={({ active, payload, label }) => {
+                        if (active && payload && payload.length) {
+                          return (
+                            <div className="bg-white p-2 border rounded shadow-lg">
+                              <p className="font-bold">{label}</p>
+                              <p>{`Value: ${payload[0].value}`}</p>
+                            </div>
+                          );
+                        }
+                        return null;
+                      }} />
+                      <Bar dataKey="value" fill="#8884d8" />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </CardContent>
+              </Card>
+
+              {/* Backlog Changes Chart */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Backlog Changes Over Time</CardTitle>
+                </CardHeader>
+                <CardContent className="h-[300px]">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <LineChart data={metrics?.daily_changes || []}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="day" />
+                      <YAxis />
+                      <Tooltip content={({ active, payload, label }) => {
+                        if (active && payload && payload.length) {
+                          return (
+                            <div className="bg-white p-2 border rounded shadow-lg">
+                              <p className="font-bold">Day {label}</p>
+                              {payload.map((entry, index) => (
+                                <p key={index} style={{ color: entry.color }}>
+                                  {entry.name}: {entry.value}
+                                </p>
+                              ))}
+                            </div>
+                          );
+                        }
+                        return null;
+                      }} />
+                      <Line type="monotone" dataKey="added" stroke="#4CAF50" name="Added" />
+                      <Line type="monotone" dataKey="removed" stroke="#f44336" name="Removed" />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </CardContent>
+              </Card>
+
+              {/* Velocity Trend */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Velocity Trend</CardTitle>
+                </CardHeader>
+                <CardContent className="h-[300px]">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <AreaChart data={metrics?.daily_changes || []}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="day" />
+                      <YAxis />
+                      <Tooltip content={({ active, payload, label }) => {
+                        if (active && payload && payload.length) {
+                          return (
+                            <div className="bg-white p-2 border rounded shadow-lg">
+                              <p className="font-bold">Day {label}</p>
+                              <p>{`Completed Tasks: ${payload[0]?.value || 0}`}</p>
+                            </div>
+                          );
+                        }
+                        return null;
+                      }} />
+                      <Area 
+                        type="monotone" 
+                        dataKey="done" 
+                        stroke="#2196F3" 
+                        fill="#2196F3" 
+                        fillOpacity={0.3}
+                        name="Completed Tasks"
+                      />
+                    </AreaChart>
+                  </ResponsiveContainer>
+                </CardContent>
+              </Card>
+
+              {/* Blocked Tasks Analysis */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Blocked Tasks Analysis</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <span>Currently Blocked Tasks</span>
+                      <Badge variant={metrics?.blocked_tasks ? "destructive" : "success"}>
+                        {metrics?.blocked_tasks || 0}
+                      </Badge>
+                    </div>
+                    <Progress 
+                      value={metrics?.blocked_tasks 
+                        ? (metrics.blocked_tasks / (metrics.todo + metrics.in_progress)) * 100 
+                        : 0
+                      } 
+                      className="h-2"
+                    />
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Add Task Changes Chart */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Daily Task Changes</CardTitle>
+                </CardHeader>
+                <CardContent className="h-[300px]">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={metrics?.daily_changes || []}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="day" />
+                      <YAxis />
+                      <Tooltip content={({ active, payload, label }) => {
+                        if (active && payload && payload.length) {
+                          return (
+                            <div className="bg-white p-2 border rounded shadow-lg">
+                              <p className="font-bold">Day {label}</p>
+                              <p className="text-green-500">Added: {payload[0].value} tasks</p>
+                              <p className="text-red-500">Removed: {Math.abs(payload[1].value)} tasks</p>
+                            </div>
+                          );
+                        }
+                        return null;
+                      }} />
+                      <Bar dataKey="added" fill="#4CAF50" name="Added Tasks" />
+                      <Bar dataKey="removed" fill="#f44336" name="Removed Tasks" />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="timeline" className="space-y-4">
+            {/* Timeline Content */}
             <Card>
               <CardHeader>
-                <CardTitle>Blocked Tasks Analysis</CardTitle>
+                <CardTitle>Sprint Timeline</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <span>Currently Blocked Tasks</span>
-                    <Badge variant={metrics?.blocked_tasks ? "destructive" : "success"}>
-                      {metrics?.blocked_tasks || 0}
-                    </Badge>
-                  </div>
-                  <Progress 
-                    value={metrics?.blocked_tasks 
-                      ? (metrics.blocked_tasks / (metrics.todo + metrics.in_progress)) * 100 
-                      : 0
-                    } 
-                    className="h-2"
-                  />
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Add Task Changes Chart */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Daily Task Changes</CardTitle>
-              </CardHeader>
-              <CardContent className="h-[300px]">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={metrics?.daily_changes || []}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="day" />
-                    <YAxis />
-                    <Tooltip content={({ active, payload, label }) => {
-                      if (active && payload && payload.length) {
-                        return (
-                          <div className="bg-white p-2 border rounded shadow-lg">
-                            <p className="font-bold">Day {label}</p>
-                            <p className="text-green-500">Added: {payload[0].value} tasks</p>
-                            <p className="text-red-500">Removed: {Math.abs(payload[1].value)} tasks</p>
-                          </div>
-                        );
-                      }
-                      return null;
-                    }} />
-                    <Bar dataKey="added" fill="#4CAF50" name="Added Tasks" />
-                    <Bar dataKey="removed" fill="#f44336" name="Removed Tasks" />
-                  </BarChart>
-                </ResponsiveContainer>
-              </CardContent>
-            </Card>
-          </div>
-        </TabsContent>
-
-        <TabsContent value="timeline" className="space-y-4">
-          {/* Timeline Content */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Sprint Timeline</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-8">
-                {/* Sprint Progress */}
-                <div>
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm font-medium">Sprint Progress</span>
-                    <span className="text-sm text-muted-foreground">
-                      Day {timeline.currentDay} of {timeline.totalDays}
-                    </span>
-                  </div>
-                  <Progress 
-                    value={(timeline.currentDay / timeline.totalDays) * 100} 
-                    className="h-2"
-                  />
-                </div>
-
-                {/* Timeline Events */}
-                <div className="space-y-4">
-                  {metrics?.daily_changes?.map((change, index) => (
-                    <div key={index} className="flex items-start space-x-4">
-                      <div className="min-w-[100px] text-sm text-muted-foreground">
-                        Day {change.day}
-                      </div>
-                      <div>
-                        {change.added > 0 && (
-                          <div className="flex items-center text-green-500">
-                            <FileUp className="h-4 w-4 mr-2" />
-                            Added {change.added} tasks
-                          </div>
-                        )}
-                        {change.removed < 0 && (
-                          <div className="flex items-center text-red-500">
-                            <XCircle className="h-4 w-4 mr-2" />
-                            Removed {Math.abs(change.removed)} tasks
-                          </div>
-                        )}
-                      </div>
+                <div className="space-y-8">
+                  {/* Sprint Progress */}
+                  <div>
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-sm font-medium">Sprint Progress</span>
+                      <span className="text-sm text-muted-foreground">
+                        Day {timeline.currentDay} of {timeline.totalDays}
+                      </span>
                     </div>
-                  ))}
+                    <Progress 
+                      value={(timeline.currentDay / timeline.totalDays) * 100} 
+                      className="h-2"
+                    />
+                  </div>
+
+                  {/* Timeline Events */}
+                  <div className="space-y-4">
+                    {metrics?.daily_changes?.map((change, index) => (
+                      <div key={index} className="flex items-start space-x-4">
+                        <div className="min-w-[100px] text-sm text-muted-foreground">
+                          Day {change.day}
+                        </div>
+                        <div>
+                          {change.added > 0 && (
+                            <div className="flex items-center text-green-500">
+                              <FileUp className="h-4 w-4 mr-2" />
+                              Added {change.added} tasks
+                            </div>
+                          )}
+                          {change.removed < 0 && (
+                            <div className="flex items-center text-red-500">
+                              <XCircle className="h-4 w-4 mr-2" />
+                              Removed {Math.abs(change.removed)} tasks
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
-    </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
+      </div>
+    </TooltipProvider>
   );
 }
 

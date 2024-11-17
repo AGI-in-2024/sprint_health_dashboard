@@ -1,0 +1,13 @@
+fastapi
+uvicorn
+pandas
+python-multipart
+pydantic
+pytest
+pytest-asyncio
+httpx
+black
+flake8
+isort
+starlette
+typing-extensions 
