@@ -166,19 +166,6 @@ async def get_sprint_health(
             detail="Service unavailable - data not loaded"
         )
     
-    # Validate inputs
-    if not selected_sprints:
-        raise HTTPException(
-            status_code=422,
-            detail="No sprints selected"
-        )
-    
-    if not selected_areas:
-        raise HTTPException(
-            status_code=422,
-            detail="No areas selected"
-        )
-    
     try:
         # Get base metrics first
         metrics = calculate_metrics(
@@ -190,73 +177,79 @@ async def get_sprint_health(
             time_frame
         )
         
-        # Extract sprint health data
-        sprint_health = metrics.get('sprint_health', {})
+        # Extract sprint health data with default values
+        sprint_health = metrics.get('health_details', {})
+        
+        # Ensure all required fields are present with default values
+        default_health = {
+            'delivery_score': 0,
+            'stability_score': 0,
+            'flow_score': 0,
+            'quality_score': 0,
+            'team_load_score': 0,
+            'completion_rate': 0,
+            'blocked_ratio': 0,
+            'last_day_completion': 0
+        }
+        
+        # Merge default values with actual data
+        sprint_health = {**default_health, **sprint_health}
         
         return {
-            'health_score': sprint_health.get('score', 0),
-            'details': sprint_health.get('details', {}),
-            'metrics_snapshot': sprint_health.get('metrics_snapshot', {}),
+            'health_score': metrics.get('health_score', 0),
+            'details': sprint_health,
+            'metrics_snapshot': {
+                'delivery_score': sprint_health['delivery_score'],
+                'stability_score': sprint_health['stability_score'],
+                'flow_score': sprint_health['flow_score'],
+                'quality_score': sprint_health['quality_score'],
+                'team_load_score': sprint_health['team_load_score']
+            },
             'category_scores': {
                 'delivery': {
-                    'score': sprint_health.get('metrics_snapshot', {}).get('delivery_score', 0),
-                    'weight': '25%',
+                    'score': sprint_health['delivery_score'],
+                    'weight': '25',
                     'description': 'Measures sprint completion rate and timing'
                 },
                 'stability': {
-                    'score': sprint_health.get('metrics_snapshot', {}).get('stability_score', 0),
-                    'weight': '20%',
+                    'score': sprint_health['stability_score'],
+                    'weight': '20',
                     'description': 'Evaluates sprint scope and backlog changes'
                 },
                 'flow': {
-                    'score': sprint_health.get('metrics_snapshot', {}).get('flow_score', 0),
-                    'weight': '20%',
+                    'score': sprint_health['flow_score'],
+                    'weight': '20',
                     'description': 'Assesses work distribution and blocked tasks'
                 },
                 'quality': {
-                    'score': sprint_health.get('metrics_snapshot', {}).get('quality_score', 0),
-                    'weight': '20%',
+                    'score': sprint_health['quality_score'],
+                    'weight': '20',
                     'description': 'Measures rework and technical debt management'
                 },
                 'team_load': {
-                    'score': sprint_health.get('metrics_snapshot', {}).get('team_load_score', 0),
-                    'weight': '15%',
+                    'score': sprint_health['team_load_score'],
+                    'weight': '15',
                     'description': 'Evaluates team workload distribution'
                 }
             },
             'key_metrics': {
                 'completion_rate': {
-                    'value': sprint_health.get('metrics_snapshot', {}).get('completion_rate', 0),
+                    'value': sprint_health['completion_rate'],
                     'unit': '%',
                     'description': 'Percentage of completed tasks'
                 },
                 'scope_changes': {
-                    'value': sprint_health.get('metrics_snapshot', {}).get('scope_change_ratio', 0),
+                    'value': metrics.get('backlog_changes', 0),
                     'unit': '%',
-                    'description': 'Percentage of removed tasks'
+                    'description': 'Percentage of scope changes'
                 },
                 'blocked_tasks': {
-                    'value': sprint_health.get('metrics_snapshot', {}).get('blocked_ratio', 0),
+                    'value': sprint_health['blocked_ratio'],
                     'unit': '%',
                     'description': 'Percentage of blocked tasks'
                 },
-                'rework': {
-                    'value': sprint_health.get('metrics_snapshot', {}).get('rework_count', 0),
-                    'unit': 'tasks',
-                    'description': 'Number of tasks requiring rework'
-                },
-                'tech_debt': {
-                    'value': sprint_health.get('metrics_snapshot', {}).get('tech_debt_ratio', 0),
-                    'unit': '%',
-                    'description': 'Percentage of technical debt tasks'
-                },
-                'flow_evenness': {
-                    'value': sprint_health.get('metrics_snapshot', {}).get('evenness_score', 0),
-                    'unit': '%',
-                    'description': 'How evenly work progresses through the sprint'
-                },
                 'last_day_completion': {
-                    'value': sprint_health.get('metrics_snapshot', {}).get('last_day_completion_percentage', 0),
+                    'value': sprint_health['last_day_completion'],
                     'unit': '%',
                     'description': 'Percentage of tasks completed on last day'
                 }

@@ -31,6 +31,7 @@ import { useDropzone } from 'react-dropzone';
 import { SprintCharts } from '@/components/SprintCharts'
 import { SprintTimeline } from '@/components/sprint-timeline'
 import { TooltipProps } from 'recharts'
+import { HealthParameters, SprintHealthResponse, SprintMetrics, KeyMetricsData, MetricDetail } from "@/types/sprint";
 
 // API integration
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000/api';
@@ -44,31 +45,35 @@ type BackendMetrics = {
   backlog_changes: number;
   blocked_tasks: number;
   health_score: number;
-  excluded_tasks: Record<string, { hours: number; count: number }>;
-  added_tasks: Record<string, { hours: number; count: number }>;
-  sprint_start_date?: string;
+  health_details: HealthDetails;
+  metrics_snapshot: {
+    [key: string]: number;
+  };
+  daily_metrics?: Array<{
+    date: string;
+    todo_percentage: number;
+    in_progress_percentage: number;
+    done_percentage: number;
+    blocked_tasks: number;
+    added_tasks: number;
+    removed_tasks: number;
+  }>;
   status_distribution?: {
     todo: number;
     in_progress: number;
     done: number;
     removed: number;
   };
-  daily_metrics?: Array<{
-    date: string;
-    added_tasks: number;
-    removed_tasks: number;
-    blocked_tasks: number;
-  }>;
   status_transitions?: {
-    last_day_completion_percentage: number;
-    daily_distribution: Record<string, any>;
     transition_evenness: number;
   };
-  health_details: HealthDetails;
-  health_metrics: HealthMetricsSnapshot;
-  category_scores?: SprintHealthResponse['category_scores'];
-  key_metrics?: SprintHealthResponse['key_metrics'];
-}
+  excluded_tasks: {
+    [date: string]: { count: number };
+  };
+  added_tasks: {
+    [date: string]: { count: number };
+  };
+};
 
 type SprintMetrics = {
   todo: number;
@@ -94,7 +99,7 @@ type SprintMetrics = {
 // Add transformation function
 function transformBackendMetrics(data: BackendMetrics, sprintStartDate: string): SprintMetrics {
   const daily_changes = data.daily_metrics 
-    ? data.daily_metrics.map(metric => {
+    ? data.daily_metrics.map((metric) => {
         const date = new Date(metric.date);
         const sprintStart = new Date(sprintStartDate);
         const day = Math.floor((date.getTime() - sprintStart.getTime()) / (1000 * 60 * 60 * 24)) + 1;
@@ -472,10 +477,26 @@ type KeyMetric = {
   description: string;
 }
 
+// Update SprintHealthResponse type to match API
 type SprintHealthResponse = {
   health_score: number;
-  details: HealthDetails;
-  metrics_snapshot: HealthMetricsSnapshot;
+  details: {
+    delivery_score: number;
+    stability_score: number;
+    flow_score: number;
+    quality_score: number;
+    team_load_score: number;
+    completion_rate: number;
+    blocked_ratio: number;
+    last_day_completion: number;
+  };
+  metrics_snapshot: {
+    delivery_score: number;
+    stability_score: number;
+    flow_score: number;
+    quality_score: number;
+    team_load_score: number;
+  };
   category_scores: {
     delivery: CategoryScore;
     stability: CategoryScore;
@@ -484,78 +505,225 @@ type SprintHealthResponse = {
     team_load: CategoryScore;
   };
   key_metrics: {
-    completion_rate: KeyMetric;
-    scope_changes: KeyMetric;
-    blocked_tasks: KeyMetric;
-    rework: KeyMetric;
-    tech_debt: KeyMetric;
-    flow_evenness: KeyMetric;
-    last_day_completion: KeyMetric;
+    completion_rate: MetricDetail;
+    scope_changes: MetricDetail;
+    blocked_tasks: MetricDetail;
+    last_day_completion: MetricDetail;
   };
 }
 
+// Add mock data generator for missing metrics
+function generateMockMetrics(baseMetrics: any): SprintMetrics {
+  return {
+    ...baseMetrics,
+    todo_trend: Math.random() * 10 - 5,
+    in_progress_trend: Math.random() * 10 - 5,
+    done_trend: Math.random() * 10 - 5,
+    removed_trend: Math.random() * 10 - 5,
+    status_changes_uniformity: Math.random() * 100,
+    health_details: {
+      delivery_score: Math.random() * 100,
+      stability_score: Math.random() * 100,
+      flow_score: Math.random() * 100,
+      quality_score: Math.random() * 100,
+      team_load_score: Math.random() * 100,
+      completion_rate: Math.random() * 100,
+      blocked_ratio: Math.random() * 10,
+      last_day_completion: Math.random() * 30
+    }
+  };
+}
+
+// Update API call to use new parameters
+const fetchSprintHealth = async (
+  sprintIds: string[],
+  selectedAreas: string[],
+  timeFrame: number
+): Promise<SprintHealthResponse> => {
+  const queryParams = new URLSearchParams();
+  sprintIds.forEach(id => queryParams.append('selected_sprints[]', id));
+  selectedAreas.forEach(area => queryParams.append('selected_areas[]', area));
+  queryParams.append('time_frame', timeFrame.toString());
+  
+  const response = await fetch(`${API_BASE_URL}/sprint-health?${queryParams}`);
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.detail || 'Failed to fetch sprint health');
+  }
+  
+  return response.json();
+};
+
 // Simplify the health score section component
-function HealthScoreSection({ metrics }: { metrics: SprintMetrics }) {
-  if (!metrics) return null;
-
-  const scores = [
-    { name: 'Доставка', score: metrics.health_details.delivery_score, weight: '25%' },
-    { name: 'Стабильность', score: metrics.health_details.stability_score, weight: '20%' },
-    { name: 'Поток', score: metrics.health_details.flow_score, weight: '20%' },
-    { name: 'Качество', score: metrics.health_details.quality_score, weight: '20%' },
-    { name: 'Нагрузка', score: metrics.health_details.team_load_score, weight: '15%' }
-  ];
-
-  const keyMetrics = [
-    { name: 'Завершение', value: metrics.health_details.completion_rate, unit: '%' },
-    { name: 'Блокировки', value: metrics.health_details.blocked_ratio, unit: '%' },
-    { name: 'Последний день', value: metrics.health_details.last_day_completion, unit: '%' }
-  ];
+function HealthScoreSection({ healthMetrics }: { healthMetrics: SprintHealthResponse | null }) {
+  if (!healthMetrics) return null;
+  
+  const { category_scores, key_metrics, health_score } = healthMetrics;
 
   return (
     <div className="space-y-6">
       {/* Health Score */}
       <div className="flex items-center justify-between">
         <span className="text-4xl font-bold">
-          {metrics.health_score.toFixed(1)}%
+          {health_score.toFixed(1)}%
         </span>
         <Badge variant={
-          metrics.health_score >= 80 ? "success" :
-          metrics.health_score >= 60 ? "warning" : "destructive"
+          health_score >= 80 ? "success" :
+          health_score >= 60 ? "warning" : "destructive"
         }>
-          {metrics.health_score >= 80 ? "Здоровый" :
-           metrics.health_score >= 60 ? "Требует внимания" : "Критический"}
+          {health_score >= 80 ? "Здоровый" :
+           health_score >= 60 ? "Требует внимания" : "Критический"}
         </Badge>
       </div>
 
       {/* Category Scores */}
       <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-        {scores.map(({ name, score, weight }) => (
-          <Card key={name}>
+        {Object.entries(category_scores).map(([key, { score, weight, description }]) => (
+          <Card key={key}>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium">{name}</CardTitle>
+              <CardTitle className="text-sm font-medium">
+                {formatCategoryName(key)}
+              </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{score.toFixed(1)}</div>
-              <p className="text-xs text-muted-foreground">Вес: {weight}</p>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger>
+                    <p className="text-xs text-muted-foreground">
+                      Вес: {weight}
+                    </p>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>{description}</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
             </CardContent>
           </Card>
         ))}
       </div>
 
       {/* Key Metrics */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {keyMetrics.map(({ name, value, unit }) => (
-          <div key={name} className="flex justify-between items-center p-2 border rounded">
-            <span>{name}</span>
-            <Badge variant={value > 80 ? "success" : "warning"}>
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        {Object.entries(key_metrics).map(([key, { value, unit, description }]) => (
+          <div key={key} className="flex justify-between items-center p-2 border rounded">
+            <span>{formatMetricName(key)}</span>
+            <Badge variant={getMetricVariant(key, value)}>
               {value.toFixed(1)}{unit}
             </Badge>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger>
+                  <Info className="h-4 w-4 text-muted-foreground" />
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>{description}</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           </div>
         ))}
       </div>
     </div>
   );
+}
+
+// Add helper function for metric variant
+function getMetricVariant(key: string, value: number): "success" | "warning" | "destructive" {
+  const thresholds = {
+    completion_rate: { success: 80, warning: 60 },
+    blocked_tasks: { success: 10, warning: 20 },
+    scope_changes: { success: 20, warning: 30 },
+    last_day_completion: { success: 20, warning: 30 }
+  };
+
+  const threshold = thresholds[key as keyof typeof thresholds];
+  if (!threshold) return "warning";
+
+  if (key === "completion_rate") {
+    return value >= threshold.success ? "success" :
+           value >= threshold.warning ? "warning" : "destructive";
+  }
+
+  return value <= threshold.success ? "success" :
+         value <= threshold.warning ? "warning" : "destructive";
+}
+
+// Move helper functions before component
+function formatCategoryName(key: string): string {
+  const names: Record<string, string> = {
+    delivery: 'Доставка',
+    stability: 'Стабильность',
+    flow: 'Поток',
+    quality: 'Качество',
+    team_load: 'Нагрузка',
+    delivery_score: 'Доставка',
+    stability_score: 'Стабильность',
+    flow_score: 'Поток',
+    quality_score: 'Качество',
+    team_load_score: 'Нагрузка'
+  };
+  return names[key] || key;
+}
+
+function formatMetricName(key: string): string {
+  const names: Record<string, string> = {
+    completion_rate: 'Завершение',
+    scope_changes: 'Изменения',
+    blocked_tasks: 'Блокировки',
+    rework: 'Доработки',
+    tech_debt: 'Тех. долг',
+    flow_evenness: 'Равномерность',
+    last_day_completion: 'Последний день',
+    backlog_changes: 'Изменения беклога',
+    health_score: 'Оценка здо��овья',
+    status_changes_uniformity: 'Равномерность изменений'
+  };
+  return names[key] || key;
+}
+
+// Add multi-sprint health calculation
+async function calculateMultiSprintHealth(sprints: string[]): Promise<SprintHealthResponse> {
+  const healthMetrics = await Promise.all(
+    sprints.map(sprint => 
+      fetch(`${API_BASE_URL}/sprint-health?sprint_id=${sprint}`).then(res => res.json())
+    )
+  );
+
+  // Aggregate health metrics
+  const aggregatedHealth = healthMetrics.reduce((acc, curr) => ({
+    health_score: acc.health_score + curr.health_score,
+    details: {
+      delivery_score: acc.details.delivery_score + curr.details.delivery_score,
+      stability_score: acc.details.stability_score + curr.details.stability_score,
+      flow_score: acc.details.flow_score + curr.details.flow_score,
+      quality_score: acc.details.quality_score + curr.details.quality_score,
+      team_load_score: acc.details.team_load_score + curr.details.team_load_score,
+      completion_rate: acc.details.completion_rate + curr.details.completion_rate,
+      blocked_ratio: acc.details.blocked_ratio + curr.details.blocked_ratio,
+      last_day_completion: acc.details.last_day_completion + curr.details.last_day_completion,
+    },
+    metrics_snapshot: Object.entries(curr.metrics_snapshot).reduce((snapAcc, [key, value]) => ({
+      ...snapAcc,
+      [key]: (snapAcc[key] || 0) + value
+    }), acc.metrics_snapshot)
+  }));
+
+  // Calculate averages
+  const count = healthMetrics.length;
+  return {
+    ...aggregatedHealth,
+    health_score: aggregatedHealth.health_score / count,
+    details: Object.entries(aggregatedHealth.details).reduce((acc, [key, value]) => ({
+      ...acc,
+      [key]: value / count
+    }), {} as SprintHealthResponse['details']),
+    metrics_snapshot: Object.entries(aggregatedHealth.metrics_snapshot).reduce((acc, [key, value]) => ({
+      ...acc,
+      [key]: value / count
+    }), {} as SprintHealthResponse['metrics_snapshot'])
+  };
 }
 
 export function SprintHealthDashboardComponent() {
@@ -579,6 +747,85 @@ export function SprintHealthDashboardComponent() {
 
   // Add new state for health metrics
   const [healthMetrics, setHealthMetrics] = useState<SprintHealthResponse | null>(null);
+
+  // Move calculateSprintPeriod inside component
+  const calculateSprintPeriod = useCallback((selectedSprints: string[]): SprintPeriod | null => {
+    if (!selectedSprints.length) return null;
+
+    const sprintDates = selectedSprints
+      .map(sprintName => {
+        const dateMatch = sprintName.match(/\d{4}\.\d+\.\d+/);
+        if (dateMatch) {
+          const [year, month, day] = dateMatch[0].split('.');
+          return new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+        }
+        return null;
+      })
+      .filter((date): date is Date => date !== null)
+      .sort((a, b) => a.getTime() - b.getTime());
+
+    if (!sprintDates.length) return null;
+
+    const startDate = sprintDates[0];
+    const endDate = sprintDates[sprintDates.length - 1];
+    const diffMonths = (endDate.getFullYear() - startDate.getFullYear()) * 12 
+      + endDate.getMonth() - startDate.getMonth();
+
+    let type: SprintPeriod['type'] = 'sprint';
+    if (sprintDates.length > 1) {
+      if (diffMonths <= 3) type = 'quarter';
+      else if (diffMonths <= 6) type = 'halfYear';
+      else type = 'year';
+    }
+
+    return {
+      startDate,
+      endDate,
+      sprints: selectedSprints,
+      type
+    };
+  }, []);
+
+  // Update sprint selection handler
+  const handleSprintSelection = useCallback((sprintName: string) => {
+    setSelectedSprints(current => {
+      const newSelection = current.includes(sprintName)
+        ? current.filter(s => s !== sprintName)
+        : [...current, sprintName];
+      
+      // Calculate sprint period
+      const period = calculateSprintPeriod(newSelection);
+      setSprintPeriod(period);
+
+      if (period) {
+        const totalDays = Math.ceil(
+          (period.endDate.getTime() - period.startDate.getTime()) / (1000 * 60 * 60 * 24)
+        );
+        
+        // Update timeline with new period information
+        setTimeline({
+          currentDay: totalDays, // Start at the end
+          totalDays: totalDays,
+          timeFramePercentage: 100 // Show full timeline initially
+        });
+
+        // Set sprint start date for single sprint view
+        if (newSelection.length === 1) {
+          setSprintStartDate(period.startDate.toISOString());
+        }
+      } else {
+        // Reset timeline when no sprints selected
+        setTimeline({
+          currentDay: 0,
+          totalDays: 14, // Default sprint length
+          timeFramePercentage: 100
+        });
+        setSprintStartDate('');
+      }
+
+      return newSelection;
+    });
+  }, [calculateSprintPeriod]);
 
   // Fetch available sprints and areas
   useEffect(() => {
@@ -632,7 +879,7 @@ export function SprintHealthDashboardComponent() {
     });
   }, [selectedSprints.length, selectedAreas.length]);
 
-  // Update the fetchMetrics function to also fetch health metrics
+  // Update the useEffect hook that fetches metrics
   useEffect(() => {
     const fetchMetrics = async () => {
       if (!selectedSprints.length || !selectedAreas.length) {
@@ -640,146 +887,120 @@ export function SprintHealthDashboardComponent() {
         setHealthMetrics(null);
         return;
       }
-      
-      const currentSprints = [...selectedSprints];
-      const currentAreas = [...selectedAreas];
-      
+
       try {
         const queryParams = new URLSearchParams();
-        currentSprints.forEach(sprint => {
-          queryParams.append('selected_sprints[]', sprint);
-        });
-        
-        currentAreas.forEach(area => {
-          queryParams.append('selected_areas[]', area);
-        });
-        
+        selectedSprints.forEach(sprint => queryParams.append('selected_sprints[]', sprint));
+        selectedAreas.forEach(area => queryParams.append('selected_areas[]', area));
         queryParams.append('time_frame', timeline.timeFramePercentage.toString());
+
+        // Fetch health metrics for all selected sprints
+        const response = await fetch(`${API_BASE_URL}/sprint-health?${queryParams}`);
         
-        // Fetch both metrics and health metrics in parallel
-        const [metricsResponse, healthResponse] = await Promise.all([
-          fetch(`${API_BASE_URL}/metrics?${queryParams}`),
-          fetch(`${API_BASE_URL}/sprint-health?${queryParams}`)
-        ]);
-        
-        if (!arraysEqual(currentSprints, selectedSprints) || 
-            !arraysEqual(currentAreas, selectedAreas)) {
-          return;
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.detail || 'Failed to fetch sprint health');
         }
-        
-        if (!metricsResponse.ok || !healthResponse.ok) {
-          const errorData = await (metricsResponse.ok ? healthResponse : metricsResponse).json();
-          throw new Error(errorData.detail || 'Failed to fetch data');
+
+        const healthData = await response.json();
+
+        // Validate the response structure
+        if (!healthData || typeof healthData.health_score === 'undefined') {
+          throw new Error('Invalid response format from server');
         }
-        
-        const [metricsData, healthData] = await Promise.all([
-          metricsResponse.json(),
-          healthResponse.json()
-        ]);
-        
-        if (!isValidBackendMetrics(metricsData)) {
-          throw new Error('Invalid metrics data received from server');
-        }
-        
-        const transformedMetrics = transformBackendMetrics(metricsData, sprintStartDate);
-        setMetrics(transformedMetrics);
+
         setHealthMetrics(healthData);
-        setError(null);
         
+        // Also fetch and set regular metrics if needed
+        const metricsResponse = await fetch(`${API_BASE_URL}/metrics?${queryParams}`);
+        if (!metricsResponse.ok) {
+          throw new Error('Failed to fetch metrics');
+        }
+        
+        const metricsData = await metricsResponse.json();
+        setMetrics(transformBackendMetrics(metricsData, sprintStartDate));
+
       } catch (err) {
         console.error('Error fetching data:', err);
         setError(err instanceof Error ? err.message : String(err));
-        setMetrics(null);
         setHealthMetrics(null);
+        setMetrics(null);
       }
     };
-    
+
     fetchMetrics();
   }, [selectedSprints, selectedAreas, timeline.timeFramePercentage, sprintStartDate]);
 
-  // Helper function for array comparison
-  const arraysEqual = (a: string[], b: string[]) => {
-    if (a.length !== b.length) return false;
-    return a.every((val, index) => val === b[index]);
-  };
-
-  // Helper function to determine sprint period
-  const calculateSprintPeriod = useCallback((selectedSprints: string[]) => {
-    if (!selectedSprints.length) return null;
-
-    const sprintDates = selectedSprints
-      .map(sprintName => {
-        const dateMatch = sprintName.match(/\d{4}\.\d+\.\d+/);
-        if (dateMatch) {
-          const [year, month, day] = dateMatch[0].split('.');
-          return new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
-        }
-        return null;
-      })
-      .filter((date): date is Date => date !== null)
-      .sort((a, b) => a.getTime() - b.getTime());
-
-    if (!sprintDates.length) return null;
-
-    const startDate = sprintDates[0];
-    const endDate = sprintDates[sprintDates.length - 1];
-    const diffMonths = (endDate.getFullYear() - startDate.getFullYear()) * 12 
-      + endDate.getMonth() - startDate.getMonth();
-
-    let type: SprintPeriod['type'] = 'sprint';
-    if (sprintDates.length > 1) {
-      if (diffMonths <= 3) type = 'quarter';
-      else if (diffMonths <= 6) type = 'halfYear';
-      else type = 'year';
+  // Add helper function for aggregating multiple sprint metrics
+  function aggregateMultipleSprintMetrics(metricsData: BackendMetrics, sprints: string[]): SprintMetrics {
+    // If metricsData is already aggregated from backend, just transform it
+    if (!Array.isArray(metricsData)) {
+      return transformBackendMetrics(metricsData, '');
     }
 
-    return {
-      startDate,
-      endDate,
-      sprints: selectedSprints,
-      type
-    };
-  }, []);
-
-  // Update sprint selection handler
-  const handleSprintSelection = useCallback((sprintName: string) => {
-    setSelectedSprints(current => {
-      const newSelection = current.includes(sprintName)
-        ? current.filter(s => s !== sprintName)
-        : [...current, sprintName];
-      
-      // Update sprint period
-      const period = calculateSprintPeriod(newSelection);
-      setSprintPeriod(period);
-
-      if (period) {
-        const totalDays = Math.ceil(
-          (period.endDate.getTime() - period.startDate.getTime()) / (1000 * 60 * 60 * 24)
-        );
-        
-        // Update timeline with new period information
-        setTimeline({
-          currentDay: totalDays, // Start at the end
-          totalDays: totalDays,
-          timeFramePercentage: 100 // Show full timeline initially
-        });
-
-        // Set sprint start date for single sprint view
-        if (newSelection.length === 1) {
-          setSprintStartDate(period.startDate.toISOString());
-        }
-      } else {
-        // Reset timeline when no sprints selected
-        setTimeline({
-          currentDay: 0,
-          totalDays: 14, // Default sprint length
-          timeFramePercentage: 100
-        });
+    // If we have an array of metrics (one per sprint), aggregate them
+    const aggregated = {
+      todo: 0,
+      in_progress: 0,
+      done: 0,
+      removed: 0,
+      backlog_changes: 0,
+      blocked_tasks: 0,
+      health_score: 0,
+      health_details: {
+        delivery_score: 0,
+        stability_score: 0,
+        flow_score: 0,
+        quality_score: 0,
+        team_load_score: 0,
+        completion_rate: 0,
+        blocked_ratio: 0,
+        last_day_completion: 0
       }
+    };
 
-      return newSelection;
+    // Calculate averages
+    metricsData.forEach((sprintMetrics: BackendMetrics) => {
+      aggregated.todo += sprintMetrics.todo;
+      aggregated.in_progress += sprintMetrics.in_progress;
+      aggregated.done += sprintMetrics.done;
+      aggregated.removed += sprintMetrics.removed;
+      aggregated.backlog_changes += sprintMetrics.backlog_changes;
+      aggregated.blocked_tasks += sprintMetrics.blocked_tasks;
+      aggregated.health_score += sprintMetrics.health_score;
+
+      // Aggregate health details
+      Object.keys(aggregated.health_details).forEach(key => {
+        aggregated.health_details[key as keyof typeof aggregated.health_details] += 
+          sprintMetrics.health_details[key as keyof typeof sprintMetrics.health_details];
+      });
     });
-  }, [calculateSprintPeriod]);
+
+    // Calculate averages
+    const count = metricsData.length;
+    aggregated.health_score /= count;
+    aggregated.backlog_changes /= count;
+    
+    Object.keys(aggregated.health_details).forEach(key => {
+      aggregated.health_details[key as keyof typeof aggregated.health_details] /= count;
+    });
+
+    return {
+      ...aggregated,
+      todo_trend: 0,
+      in_progress_trend: 0,
+      done_trend: 0,
+      removed_trend: 0,
+      status_changes_uniformity: 0,
+      daily_changes: [] // Could be aggregated if needed
+    };
+  }
+
+  // Add helper function to compare arrays
+  function arraysEqual<T>(a: T[], b: T[]): boolean {
+    if (a.length !== b.length) return false;
+    return a.every((val, index) => val === b[index]);
+  }
 
   // Helper function for safe number formatting
   const formatNumber = (value: number | undefined): string => {
@@ -826,7 +1047,7 @@ export function SprintHealthDashboardComponent() {
   }
 
   // Add new component for key metrics
-  function KeyMetrics({ metrics }: { metrics: SprintHealthResponse['key_metrics'] }) {
+  function KeyMetrics({ metrics }: { metrics: KeyMetricsData }) {
     return (
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {Object.entries(metrics).map(([key, metric]) => (
@@ -853,31 +1074,6 @@ export function SprintHealthDashboardComponent() {
         ))}
       </div>
     );
-  }
-
-  // Add helper function for formatting names
-  function formatCategoryName(key: string): string {
-    const names: Record<string, string> = {
-      delivery: 'Доставка',
-      stability: 'Стабильность',
-      flow: 'Поток',
-      quality: 'Качество',
-      team_load: 'Нагрузка'
-    };
-    return names[key] || key;
-  }
-
-  function formatMetricName(key: string): string {
-    const names: Record<string, string> = {
-      completion_rate: 'Завершение',
-      scope_changes: 'Изменения',
-      blocked_tasks: 'Блокировки',
-      rework: 'Доработки',
-      tech_debt: 'Тех. долг',
-      flow_evenness: 'Равномерность',
-      last_day_completion: 'Последний день'
-    };
-    return names[key] || key;
   }
 
   return (
@@ -1059,7 +1255,7 @@ export function SprintHealthDashboardComponent() {
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <HealthScoreSection metrics={metrics} />
+                    <HealthScoreSection healthMetrics={healthMetrics} />
                   </CardContent>
                 </Card>
               </motion.div>
@@ -1107,7 +1303,7 @@ export function SprintHealthDashboardComponent() {
                   <HealthIndicator 
                     value={(metrics.todo / (metrics.todo + metrics.in_progress + metrics.done)) * 100}
                     threshold={20}
-                    label="Задачи к выполнению (должно быть <20%)"
+                    label="Задачи к выполнению (долно быть <20%)"
                   />
                   <HealthIndicator 
                     value={(metrics.removed / (metrics.todo + metrics.in_progress + metrics.done + metrics.removed)) * 100}
@@ -1117,7 +1313,7 @@ export function SprintHealthDashboardComponent() {
                   <HealthIndicator 
                     value={metrics.backlog_changes}
                     threshold={20}
-                    label="Изменения в бэклоге (должно быть <20%)"
+                    label="Изменения в бэклое (должно быть <20%)"
                   />
                   {metrics.status_changes_uniformity && (
                     <HealthIndicator 

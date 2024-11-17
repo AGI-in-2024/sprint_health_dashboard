@@ -341,7 +341,7 @@ def calculate_transition_evenness(daily_stats, sprint_duration):
     return evenness
 
 def calculate_sprint_health(metrics, tasks_df, history_df, sprint_info):
-    """Calculate simplified sprint health score"""
+    """Calculate sprint health score with detailed metrics"""
     try:
         total_tasks = metrics['todo'] + metrics['in_progress'] + metrics['done'] + metrics['removed']
         if total_tasks == 0:
@@ -364,20 +364,20 @@ def calculate_sprint_health(metrics, tasks_df, history_df, sprint_info):
         blocked_ratio = (metrics['blocked_tasks'] / total_tasks) * 100 if total_tasks > 0 else 0
         last_day_completion = metrics.get('status_transitions', {}).get('last_day_completion_percentage', 0)
 
-        # Calculate category scores
+        # Calculate category scores with weights
         delivery_score = min(100, max(0, completion_rate))
         stability_score = min(100, max(0, 100 - metrics['backlog_changes']))
         flow_score = min(100, max(0, 100 - blocked_ratio))
         quality_score = min(100, max(0, 100 - last_day_completion))
-        team_load_score = 80  # Default score if no specific calculation
+        team_load_score = calculate_team_load_score(tasks_df)
 
-        # Calculate final health score
+        # Calculate final health score with weights
         health_score = (
-            delivery_score * 0.25 +
-            stability_score * 0.20 +
-            flow_score * 0.20 +
-            quality_score * 0.20 +
-            team_load_score * 0.15
+            delivery_score * 0.25 +  # Delivery weight
+            stability_score * 0.20 + # Stability weight
+            flow_score * 0.20 +      # Flow weight
+            quality_score * 0.20 +   # Quality weight
+            team_load_score * 0.15   # Team load weight
         )
 
         return {
@@ -408,6 +408,34 @@ def calculate_sprint_health(metrics, tasks_df, history_df, sprint_info):
                 'last_day_completion': 0
             }
         }
+
+def calculate_team_load_score(tasks_df):
+    """Calculate team load score based on task distribution"""
+    try:
+        if 'assignee' not in tasks_df.columns or tasks_df.empty:
+            return 80  # Default score if no data available
+
+        # Calculate tasks per assignee
+        tasks_per_assignee = tasks_df['assignee'].value_counts()
+        
+        # Calculate coefficient of variation
+        cv = tasks_per_assignee.std() / tasks_per_assignee.mean() if len(tasks_per_assignee) > 1 else 0
+        
+        # Convert to score (lower cv is better)
+        if cv <= 0.2:  # Very even distribution
+            return 100
+        elif cv <= 0.4:  # Good distribution
+            return 90
+        elif cv <= 0.6:  # Acceptable distribution
+            return 80
+        elif cv <= 0.8:  # Uneven distribution
+            return 70
+        else:  # Very uneven distribution
+            return 60
+
+    except Exception as e:
+        logger.error(f"Error calculating team load score: {str(e)}")
+        return 80  # Default score on error
 
 def _calculate_base_metrics(sprint_tasks, sprint_info, history_df):
     """Calculate all base metrics for the sprint up to the selected time frame."""

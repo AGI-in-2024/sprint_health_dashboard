@@ -4,6 +4,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { CalendarDays, AlertCircle, CheckCircle2, Clock, Calendar } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { ResponsiveContainer, LineChart, CartesianGrid, XAxis, YAxis, Tooltip, Line } from 'recharts';
 
 interface SprintTimelineProps {
   currentDay: number;
@@ -11,6 +12,16 @@ interface SprintTimelineProps {
   timeFramePercentage: number;
   backlogChanges?: number;
   selectedSprints: string[];
+  dailyMetrics?: {
+    [date: string]: {
+      todo_percentage: number;
+      in_progress_percentage: number;
+      done_percentage: number;
+      blocked_tasks: number;
+      added_tasks: number;
+      removed_tasks: number;
+    }
+  };
   onTimelineChange: (percentage: number, day: number) => void;
 }
 
@@ -30,6 +41,7 @@ export function SprintTimeline({
   timeFramePercentage,
   backlogChanges,
   selectedSprints,
+  dailyMetrics,
   onTimelineChange
 }: SprintTimelineProps) {
   // Add validation for timeline updates
@@ -133,6 +145,30 @@ export function SprintTimeline({
     handleTimelineUpdate(
       isNaN(percentage) ? 100 : percentage,
       milestone.day
+    );
+  };
+
+  // Add visualization for daily metrics
+  const DailyMetricsChart = ({ metrics }: { metrics: SprintTimelineProps['dailyMetrics'] }) => {
+    if (!metrics) return null;
+
+    const data = Object.entries(metrics).map(([date, values]) => ({
+      date,
+      ...values
+    }));
+
+    return (
+      <ResponsiveContainer width="100%" height={200}>
+        <LineChart data={data}>
+          <CartesianGrid strokeDasharray="3 3" />
+          <XAxis dataKey="date" />
+          <YAxis />
+          <Tooltip />
+          <Line type="monotone" dataKey="todo_percentage" stroke="#8884d8" />
+          <Line type="monotone" dataKey="in_progress_percentage" stroke="#82ca9d" />
+          <Line type="monotone" dataKey="done_percentage" stroke="#ffc658" />
+        </LineChart>
+      </ResponsiveContainer>
     );
   };
 
@@ -266,6 +302,13 @@ export function SprintTimeline({
                   </AlertDescription>
                 </Alert>
               )}
+            </div>
+          )}
+
+          {/* Daily metrics visualization */}
+          {dailyMetrics && (
+            <div className="mt-4">
+              <DailyMetricsChart metrics={dailyMetrics} />
             </div>
           )}
         </div>

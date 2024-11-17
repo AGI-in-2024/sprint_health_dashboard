@@ -137,3 +137,274 @@ Calculating health scores for sprint with 465 tasks
             Final Score: 0.61
             Advanced Score: 0.05
             
+2024-11-18 03:16:50,856 - __main__ - INFO - Starting server...
+2024-11-18 03:16:50,892 - data_loader - INFO - Loading datasets...
+2024-11-18 03:16:50,892 - data_loader - INFO - Found data directory: data_for_spb_hakaton_entities
+2024-11-18 03:16:50,949 - data_loader - INFO - Loaded entities dataset: 2485 rows
+2024-11-18 03:17:00,854 - data_loader - INFO - Loaded history dataset: 64179 rows
+2024-11-18 03:17:00,862 - data_loader - INFO - Loaded sprints dataset: 6 rows
+2024-11-18 03:17:00,866 - data_loader - WARNING - Found 1 history entries referring to non-existent entities
+2024-11-18 03:17:00,866 - data_loader - INFO - Dataset validation completed successfully
+2024-11-18 03:17:00,866 - data_loader - INFO - All datasets loaded successfully
+2024-11-18 03:17:00,888 - sprint_health - INFO - Loading datasets...
+2024-11-18 03:17:00,888 - sprint_health - INFO - Using data directory: /home/dukhanin/agile_new/new/data_for_spb_hakaton_entities
+2024-11-18 03:17:00,889 - sprint_health - INFO - Loading entities data...
+2024-11-18 03:17:00,912 - sprint_health - INFO - Loading history data...
+2024-11-18 03:17:01,004 - sprint_health - INFO - Loading sprints data...
+2024-11-18 03:17:01,006 - sprint_health - INFO - 
+Preprocessing data...
+2024-11-18 03:17:01,006 - sprint_health - INFO - Processing history data...
+2024-11-18 03:17:01,057 - sprint_health - INFO - Splitting history_change into old_value and new_value
+2024-11-18 03:17:10,243 - sprint_health - INFO - Split 64179 history changes
+2024-11-18 03:17:10,246 - sprint_health - WARNING - Warning: 3059 invalid dates found in history data
+2024-11-18 03:17:10,246 - sprint_health - INFO - Converting dates...
+2024-11-18 03:17:10,253 - sprint_health - INFO - 
+Date parsing validation:
+2024-11-18 03:17:10,254 - sprint_health - INFO - Entities - create_date: 2485/2485 dates parsed successfully
+2024-11-18 03:17:10,254 - sprint_health - INFO - Entities - update_date: 2485/2485 dates parsed successfully
+2024-11-18 03:17:10,255 - sprint_health - INFO - Entities - due_date: 0/2485 dates parsed successfully
+2024-11-18 03:17:10,255 - sprint_health - INFO - Sprints - sprint_start_date: 6/6 dates parsed successfully
+2024-11-18 03:17:10,256 - sprint_health - INFO - Sprints - sprint_end_date: 6/6 dates parsed successfully
+2024-11-18 03:17:10,257 - sprint_health - INFO - History - history_date: 61120/64179 dates parsed successfully
+2024-11-18 03:17:10,257 - sprint_health - INFO - Calculating processing time...
+2024-11-18 03:17:10,262 - sprint_health - INFO - Calculated processing time for 2485 tasks
+2024-11-18 03:17:10,262 - sprint_health - INFO - 
+Datasets preprocessed successfully
+2024-11-18 03:17:10,266 - sprint_health - INFO - All datasets loaded successfully
+2024-11-18 03:17:10,266 - __main__ - INFO - Sprint Health Analyzer initialized successfully
+2024-11-18 03:17:21,217 - sprint_health - INFO - Found 465 tasks for sprint
+2024-11-18 03:17:22,288 - sprint_health_calculator - INFO - 
+Calculating health scores for sprint with 465 tasks
+2024-11-18 03:17:22,289 - sprint_health_calculator - INFO - Daily metrics available: True
+2024-11-18 03:17:22,289 - sprint_health_calculator - INFO - Days with metrics: 7
+2024-11-18 03:17:22,290 - sprint_health_calculator - INFO - Todo percentage: 2.2% -> score: 0.85
+2024-11-18 03:17:22,291 - sprint_health_calculator - INFO - Removed percentage: 3.2% -> score: 0.78
+2024-11-18 03:17:22,292 - sprint_health_calculator - INFO - Backlog change: 65.0% -> score: 0.00
+2024-11-18 03:17:22,293 - sprint_health_calculator - INFO - Status uniformity score: 0.91
+2024-11-18 03:17:22,294 - sprint_health_calculator - INFO - Completion rate: 0.94
+2024-11-18 03:17:22,294 - sprint_health_calculator - INFO - Burndown adherence score: 0.52
+2024-11-18 03:17:22,294 - sprint_health_calculator - INFO - Team collaboration score: 1.00
+2024-11-18 03:17:22,295 - sprint_health_calculator - INFO - Task aging score: 0.30
+2024-11-18 03:17:22,296 - sprint_health_calculator - INFO - Work distribution score: 0.30
+2024-11-18 03:17:22,296 - sprint_health_calculator - INFO - Velocity stability score: 1.00
+2024-11-18 03:17:22,305 - sprint_health_calculator - INFO - 
+            Sprint Health Summary:
+            Components using defaults: None
+            Weights sum: 1.0
+            Final Score: 0.69
+            Advanced Score: 0.05
+            
+2024-11-18 03:17:22,336 - sprint_health - INFO - Found 465 tasks for sprint
+2024-11-18 03:17:23,466 - sprint_health_calculator - INFO - 
+Calculating health scores for sprint with 465 tasks
+2024-11-18 03:17:23,466 - sprint_health_calculator - INFO - Daily metrics available: True
+2024-11-18 03:17:23,466 - sprint_health_calculator - INFO - Days with metrics: 14
+2024-11-18 03:17:23,467 - sprint_health_calculator - INFO - Todo percentage: 2.2% -> score: 0.85
+2024-11-18 03:17:23,468 - sprint_health_calculator - INFO - Removed percentage: 3.2% -> score: 0.78
+2024-11-18 03:17:23,469 - sprint_health_calculator - INFO - Backlog change: 65.0% -> score: 0.00
+2024-11-18 03:17:23,469 - sprint_health_calculator - INFO - Status uniformity score: 0.72
+2024-11-18 03:17:23,470 - sprint_health_calculator - INFO - Completion rate: 0.94
+2024-11-18 03:17:23,470 - sprint_health_calculator - INFO - Burndown adherence score: 0.39
+2024-11-18 03:17:23,471 - sprint_health_calculator - INFO - Team collaboration score: 1.00
+2024-11-18 03:17:23,472 - sprint_health_calculator - INFO - Task aging score: 0.30
+2024-11-18 03:17:23,472 - sprint_health_calculator - INFO - Work distribution score: 0.30
+2024-11-18 03:17:23,472 - sprint_health_calculator - INFO - Velocity stability score: 0.41
+2024-11-18 03:17:23,473 - sprint_health_calculator - INFO - 
+            Sprint Health Summary:
+            Components using defaults: None
+            Weights sum: 1.0
+            Final Score: 0.61
+            Advanced Score: 0.05
+            
+2024-11-18 03:17:23,488 - sprint_health - INFO - Found 437 tasks for sprint
+2024-11-18 03:17:24,363 - sprint_health_calculator - INFO - 
+Calculating health scores for sprint with 437 tasks
+2024-11-18 03:17:24,363 - sprint_health_calculator - INFO - Daily metrics available: True
+2024-11-18 03:17:24,363 - sprint_health_calculator - INFO - Days with metrics: 14
+2024-11-18 03:17:24,364 - sprint_health_calculator - INFO - Todo percentage: 3.9% -> score: 0.74
+2024-11-18 03:17:24,365 - sprint_health_calculator - INFO - Removed percentage: 1.4% -> score: 0.91
+2024-11-18 03:17:24,366 - sprint_health_calculator - INFO - Backlog change: 29.9% -> score: 0.00
+2024-11-18 03:17:24,367 - sprint_health_calculator - INFO - Status uniformity score: 0.75
+2024-11-18 03:17:24,368 - sprint_health_calculator - INFO - Completion rate: 0.90
+2024-11-18 03:17:24,368 - sprint_health_calculator - INFO - Burndown adherence score: 0.41
+2024-11-18 03:17:24,368 - sprint_health_calculator - INFO - Team collaboration score: 1.00
+2024-11-18 03:17:24,369 - sprint_health_calculator - INFO - Task aging score: 0.30
+2024-11-18 03:17:24,370 - sprint_health_calculator - INFO - Work distribution score: 0.30
+2024-11-18 03:17:24,370 - sprint_health_calculator - INFO - Velocity stability score: 0.51
+2024-11-18 03:17:24,371 - sprint_health_calculator - INFO - 
+            Sprint Health Summary:
+            Components using defaults: None
+            Weights sum: 1.0
+            Final Score: 0.62
+            Advanced Score: 0.03
+            
+2024-11-18 03:17:24,399 - sprint_health - INFO - Found 465 tasks for sprint
+2024-11-18 03:17:25,619 - sprint_health_calculator - INFO - 
+Calculating health scores for sprint with 465 tasks
+2024-11-18 03:17:25,619 - sprint_health_calculator - INFO - Daily metrics available: True
+2024-11-18 03:17:25,619 - sprint_health_calculator - INFO - Days with metrics: 14
+2024-11-18 03:17:25,621 - sprint_health_calculator - INFO - Todo percentage: 2.2% -> score: 0.85
+2024-11-18 03:17:25,622 - sprint_health_calculator - INFO - Removed percentage: 3.2% -> score: 0.78
+2024-11-18 03:17:25,624 - sprint_health_calculator - INFO - Backlog change: 65.0% -> score: 0.00
+2024-11-18 03:17:25,624 - sprint_health_calculator - INFO - Status uniformity score: 0.72
+2024-11-18 03:17:25,625 - sprint_health_calculator - INFO - Completion rate: 0.94
+2024-11-18 03:17:25,626 - sprint_health_calculator - INFO - Burndown adherence score: 0.39
+2024-11-18 03:17:25,626 - sprint_health_calculator - INFO - Team collaboration score: 1.00
+2024-11-18 03:17:25,628 - sprint_health_calculator - INFO - Task aging score: 0.30
+2024-11-18 03:17:25,629 - sprint_health_calculator - INFO - Work distribution score: 0.30
+2024-11-18 03:17:25,629 - sprint_health_calculator - INFO - Velocity stability score: 0.41
+2024-11-18 03:17:25,630 - sprint_health_calculator - INFO - 
+            Sprint Health Summary:
+            Components using defaults: None
+            Weights sum: 1.0
+            Final Score: 0.61
+            Advanced Score: 0.05
+            
+2024-11-18 03:51:43,407 - __main__ - INFO - Starting server...
+2024-11-18 03:51:43,489 - data_loader - INFO - Loading datasets...
+2024-11-18 03:51:43,490 - data_loader - INFO - Found data directory: data_for_spb_hakaton_entities
+2024-11-18 03:51:43,581 - data_loader - INFO - Loaded entities dataset: 2485 rows
+2024-11-18 03:52:09,503 - data_loader - INFO - Loaded history dataset: 64179 rows
+2024-11-18 03:52:09,520 - data_loader - INFO - Loaded sprints dataset: 6 rows
+2024-11-18 03:52:09,531 - data_loader - WARNING - Found 1 history entries referring to non-existent entities
+2024-11-18 03:52:09,531 - data_loader - INFO - Dataset validation completed successfully
+2024-11-18 03:52:09,532 - data_loader - INFO - All datasets loaded successfully
+2024-11-18 03:52:09,606 - sprint_health - INFO - Loading datasets...
+2024-11-18 03:52:09,608 - sprint_health - INFO - Using data directory: /home/dukhanin/agile_new/new/data_for_spb_hakaton_entities
+2024-11-18 03:52:09,608 - sprint_health - INFO - Loading entities data...
+2024-11-18 03:52:09,683 - sprint_health - INFO - Loading history data...
+2024-11-18 03:52:09,961 - sprint_health - INFO - Loading sprints data...
+2024-11-18 03:52:09,967 - sprint_health - INFO - 
+Preprocessing data...
+2024-11-18 03:52:09,967 - sprint_health - INFO - Processing history data...
+2024-11-18 03:52:10,153 - sprint_health - INFO - Splitting history_change into old_value and new_value
+2024-11-18 03:52:25,932 - sprint_health - INFO - Split 64179 history changes
+2024-11-18 03:52:25,937 - sprint_health - WARNING - Warning: 3059 invalid dates found in history data
+2024-11-18 03:52:25,938 - sprint_health - INFO - Converting dates...
+2024-11-18 03:52:25,954 - sprint_health - INFO - 
+Date parsing validation:
+2024-11-18 03:52:25,955 - sprint_health - INFO - Entities - create_date: 2485/2485 dates parsed successfully
+2024-11-18 03:52:25,956 - sprint_health - INFO - Entities - update_date: 2485/2485 dates parsed successfully
+2024-11-18 03:52:25,957 - sprint_health - INFO - Entities - due_date: 0/2485 dates parsed successfully
+2024-11-18 03:52:25,958 - sprint_health - INFO - Sprints - sprint_start_date: 6/6 dates parsed successfully
+2024-11-18 03:52:25,958 - sprint_health - INFO - Sprints - sprint_end_date: 6/6 dates parsed successfully
+2024-11-18 03:52:25,959 - sprint_health - INFO - History - history_date: 61120/64179 dates parsed successfully
+2024-11-18 03:52:25,959 - sprint_health - INFO - Calculating processing time...
+2024-11-18 03:52:25,970 - sprint_health - INFO - Calculated processing time for 2485 tasks
+2024-11-18 03:52:25,970 - sprint_health - INFO - 
+Datasets preprocessed successfully
+2024-11-18 03:52:25,977 - sprint_health - INFO - All datasets loaded successfully
+2024-11-18 03:52:25,978 - __main__ - INFO - Sprint Health Analyzer initialized successfully
+2024-11-18 03:59:47,510 - __main__ - INFO - Starting server...
+2024-11-18 03:59:47,563 - data_loader - INFO - Loading datasets...
+2024-11-18 03:59:47,564 - data_loader - INFO - Found data directory: data_for_spb_hakaton_entities
+2024-11-18 03:59:47,662 - data_loader - INFO - Loaded entities dataset: 2485 rows
+2024-11-18 04:00:14,455 - data_loader - INFO - Loaded history dataset: 64179 rows
+2024-11-18 04:00:14,473 - data_loader - INFO - Loaded sprints dataset: 6 rows
+2024-11-18 04:00:14,482 - data_loader - WARNING - Found 1 history entries referring to non-existent entities
+2024-11-18 04:00:14,483 - data_loader - INFO - Dataset validation completed successfully
+2024-11-18 04:00:14,483 - data_loader - INFO - All datasets loaded successfully
+2024-11-18 04:00:14,554 - sprint_health - INFO - Loading datasets...
+2024-11-18 04:00:14,556 - sprint_health - INFO - Using data directory: /home/dukhanin/agile_new/new/data_for_spb_hakaton_entities
+2024-11-18 04:00:14,557 - sprint_health - INFO - Loading entities data...
+2024-11-18 04:00:14,651 - sprint_health - INFO - Loading history data...
+2024-11-18 04:00:15,017 - sprint_health - INFO - Loading sprints data...
+2024-11-18 04:00:15,024 - sprint_health - INFO - 
+Preprocessing data...
+2024-11-18 04:00:15,025 - sprint_health - INFO - Processing history data...
+2024-11-18 04:00:15,225 - sprint_health - INFO - Splitting history_change into old_value and new_value
+2024-11-18 04:00:42,666 - sprint_health - INFO - Split 64179 history changes
+2024-11-18 04:00:42,667 - sprint_health - WARNING - Warning: 3059 invalid dates found in history data
+2024-11-18 04:00:42,667 - sprint_health - INFO - Converting dates...
+2024-11-18 04:00:42,678 - sprint_health - INFO - 
+Date parsing validation:
+2024-11-18 04:00:42,679 - sprint_health - INFO - Entities - create_date: 2485/2485 dates parsed successfully
+2024-11-18 04:00:42,680 - sprint_health - INFO - Entities - update_date: 2485/2485 dates parsed successfully
+2024-11-18 04:00:42,681 - sprint_health - INFO - Entities - due_date: 0/2485 dates parsed successfully
+2024-11-18 04:00:42,681 - sprint_health - INFO - Sprints - sprint_start_date: 6/6 dates parsed successfully
+2024-11-18 04:00:42,682 - sprint_health - INFO - Sprints - sprint_end_date: 6/6 dates parsed successfully
+2024-11-18 04:00:42,683 - sprint_health - INFO - History - history_date: 61120/64179 dates parsed successfully
+2024-11-18 04:00:42,683 - sprint_health - INFO - Calculating processing time...
+2024-11-18 04:00:42,689 - sprint_health - INFO - Calculated processing time for 2485 tasks
+2024-11-18 04:00:42,689 - sprint_health - INFO - 
+Datasets preprocessed successfully
+2024-11-18 04:00:42,693 - sprint_health - INFO - All datasets loaded successfully
+2024-11-18 04:00:42,693 - __main__ - INFO - Sprint Health Analyzer initialized successfully
+2024-11-18 04:02:23,187 - __main__ - INFO - Starting server...
+2024-11-18 04:02:23,208 - data_loader - INFO - Loading datasets...
+2024-11-18 04:02:23,209 - data_loader - INFO - Found data directory: data_for_spb_hakaton_entities
+2024-11-18 04:02:23,269 - data_loader - INFO - Loaded entities dataset: 2485 rows
+2024-11-18 04:02:48,982 - data_loader - INFO - Loaded history dataset: 64179 rows
+2024-11-18 04:02:48,990 - data_loader - INFO - Loaded sprints dataset: 6 rows
+2024-11-18 04:02:48,995 - data_loader - WARNING - Found 1 history entries referring to non-existent entities
+2024-11-18 04:02:48,996 - data_loader - INFO - Dataset validation completed successfully
+2024-11-18 04:02:48,996 - data_loader - INFO - All datasets loaded successfully
+2024-11-18 04:02:49,026 - sprint_health - INFO - Loading datasets...
+2024-11-18 04:02:49,027 - sprint_health - INFO - Using data directory: /home/dukhanin/agile_new/new/data_for_spb_hakaton_entities
+2024-11-18 04:02:49,027 - sprint_health - INFO - Loading entities data...
+2024-11-18 04:02:49,055 - sprint_health - INFO - Loading history data...
+2024-11-18 04:02:49,291 - sprint_health - INFO - Loading sprints data...
+2024-11-18 04:02:49,299 - sprint_health - INFO - 
+Preprocessing data...
+2024-11-18 04:02:49,300 - sprint_health - INFO - Processing history data...
+2024-11-18 04:02:49,505 - sprint_health - INFO - Splitting history_change into old_value and new_value
+2024-11-18 04:03:13,886 - sprint_health - INFO - Split 64179 history changes
+2024-11-18 04:03:13,888 - sprint_health - WARNING - Warning: 3059 invalid dates found in history data
+2024-11-18 04:03:13,888 - sprint_health - INFO - Converting dates...
+2024-11-18 04:03:13,905 - sprint_health - INFO - 
+Date parsing validation:
+2024-11-18 04:03:13,907 - sprint_health - INFO - Entities - create_date: 2485/2485 dates parsed successfully
+2024-11-18 04:03:13,908 - sprint_health - INFO - Entities - update_date: 2485/2485 dates parsed successfully
+2024-11-18 04:03:13,909 - sprint_health - INFO - Entities - due_date: 0/2485 dates parsed successfully
+2024-11-18 04:03:13,910 - sprint_health - INFO - Sprints - sprint_start_date: 6/6 dates parsed successfully
+2024-11-18 04:03:13,911 - sprint_health - INFO - Sprints - sprint_end_date: 6/6 dates parsed successfully
+2024-11-18 04:03:13,912 - sprint_health - INFO - History - history_date: 61120/64179 dates parsed successfully
+2024-11-18 04:03:13,913 - sprint_health - INFO - Calculating processing time...
+2024-11-18 04:03:13,921 - sprint_health - INFO - Calculated processing time for 2485 tasks
+2024-11-18 04:03:13,922 - sprint_health - INFO - 
+Datasets preprocessed successfully
+2024-11-18 04:03:13,927 - sprint_health - INFO - All datasets loaded successfully
+2024-11-18 04:03:13,927 - __main__ - INFO - Sprint Health Analyzer initialized successfully
+2024-11-18 04:04:13,436 - __main__ - ERROR - Error calculating sprint health: SprintHealthAnalyzer.analyze_sprint_health() got an unexpected keyword argument 'areas'
+2024-11-18 04:13:10,471 - __main__ - INFO - Starting server...
+2024-11-18 04:13:10,503 - __main__ - INFO - Initializing new analyzer...
+2024-11-18 04:13:10,503 - data_loader - INFO - Loading datasets...
+2024-11-18 04:13:10,503 - data_loader - INFO - Found data directory: data_for_spb_hakaton_entities
+2024-11-18 04:13:10,538 - data_loader - INFO - Loaded entities dataset: 2485 rows
+2024-11-18 04:13:34,287 - data_loader - INFO - Loaded history dataset: 64179 rows
+2024-11-18 04:13:34,297 - data_loader - INFO - Loaded sprints dataset: 6 rows
+2024-11-18 04:13:34,302 - data_loader - WARNING - Found 1 history entries referring to non-existent entities
+2024-11-18 04:13:34,302 - data_loader - INFO - Dataset validation completed successfully
+2024-11-18 04:13:34,303 - data_loader - INFO - All datasets loaded successfully
+2024-11-18 04:13:34,344 - sprint_health - INFO - Loading datasets...
+2024-11-18 04:13:34,345 - sprint_health - INFO - Using data directory: /home/dukhanin/agile_new/new/data_for_spb_hakaton_entities
+2024-11-18 04:13:34,346 - sprint_health - INFO - Loading entities data...
+2024-11-18 04:13:34,386 - sprint_health - INFO - Loading history data...
+2024-11-18 04:13:34,593 - sprint_health - INFO - Loading sprints data...
+2024-11-18 04:13:34,599 - sprint_health - INFO - 
+Preprocessing data...
+2024-11-18 04:13:34,600 - sprint_health - INFO - Processing history data...
+2024-11-18 04:13:34,778 - sprint_health - INFO - Splitting history_change into old_value and new_value
+2024-11-18 04:14:00,339 - sprint_health - INFO - Split 64179 history changes
+2024-11-18 04:14:00,342 - sprint_health - WARNING - Warning: 3059 invalid dates found in history data
+2024-11-18 04:14:00,343 - sprint_health - INFO - Converting dates...
+2024-11-18 04:14:00,366 - sprint_health - INFO - 
+Date parsing validation:
+2024-11-18 04:14:00,368 - sprint_health - INFO - Entities - create_date: 2485/2485 dates parsed successfully
+2024-11-18 04:14:00,369 - sprint_health - INFO - Entities - update_date: 2485/2485 dates parsed successfully
+2024-11-18 04:14:00,370 - sprint_health - INFO - Entities - due_date: 0/2485 dates parsed successfully
+2024-11-18 04:14:00,371 - sprint_health - INFO - Sprints - sprint_start_date: 6/6 dates parsed successfully
+2024-11-18 04:14:00,372 - sprint_health - INFO - Sprints - sprint_end_date: 6/6 dates parsed successfully
+2024-11-18 04:14:00,374 - sprint_health - INFO - History - history_date: 61120/64179 dates parsed successfully
+2024-11-18 04:14:00,374 - sprint_health - INFO - Calculating processing time...
+2024-11-18 04:14:00,381 - sprint_health - INFO - Calculated processing time for 2485 tasks
+2024-11-18 04:14:00,382 - sprint_health - INFO - 
+Datasets preprocessed successfully
+2024-11-18 04:14:00,385 - sprint_health - INFO - All datasets loaded successfully
+2024-11-18 04:14:00,544 - __main__ - INFO - Sprint Health Analyzer initialized and cached successfully
+2024-11-18 04:14:56,471 - __main__ - INFO - Starting server...
+2024-11-18 04:14:56,553 - __main__ - INFO - Loading analyzer from cache...
+2024-11-18 04:18:12,599 - __main__ - INFO - Starting server...
+2024-11-18 04:18:12,627 - __main__ - INFO - Loading analyzer from cache...
+2024-11-18 04:26:53,238 - __main__ - INFO - Starting server...
+2024-11-18 04:26:53,291 - __main__ - INFO - Loading analyzer from cache...
